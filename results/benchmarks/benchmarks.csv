@@ -1,0 +1,7 @@
+week,experiment,platform,precision,metric,value,unit,notes
+W9,inference_latency,CPU,FP32,latency,,ms,To be filled
+W9,inference_latency,GPU_A100,FP16,latency,,ms,To be filled
+W9,inference_latency,FPGA_PynqZ2,INT8,latency,,ms,Phase 4 — Nov 2026
+W9,accuracy,ResNet18_MalImg,FP32,F1,,macro,To be filled
+W6,accuracy,RandomForest_NSL-KDD,FP32,F1,,macro,To be filled
+W7,accuracy,MLP_NSL-KDD,FP32,F1,,macro,To be filled

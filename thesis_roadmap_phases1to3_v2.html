@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thesis Roadmap — Phases 1–3 Deep Dive</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --text2: #9095a8;
+    --text3: #565c70;
+    --blue: #378ADD;
+    --blue-bg: rgba(55,138,221,0.10);
+    --blue-text: #7bb8f0;
+    --purple: #7F77DD;
+    --purple-bg: rgba(127,119,221,0.10);
+    --purple-text: #b0aaee;
+    --teal: #1D9E75;
+    --teal-bg: rgba(29,158,117,0.10);
+    --teal-text: #5ecba4;
+    --amber: #BA7517;
+    --amber-bg: rgba(186,117,23,0.10);
+    --amber-text: #e8a84a;
+    --coral: #D85A30;
+    --coral-bg: rgba(216,90,48,0.10);
+    --coral-text: #f09070;
+    --green: #639922;
+    --green-bg: rgba(99,153,34,0.10);
+    --green-text: #96cc4a;
+    --r: 10px;
+    --rsm: 6px;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.75rem 5rem;
+  }
+
+  /* ── Progress bar ── */
+  #prog { position: fixed; top: 0; left: 0; height: 2px; background: var(--teal); z-index: 200; width: 0; transition: width .1s; }
+
+  /* ── Header ── */
+  .doc-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; font-family: var(--mono); }
+  .doc-title { font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 5px; letter-spacing: -.02em; }
+  .doc-sub { font-size: 14px; color: var(--text2); }
+
+  /* ── Timeline ── */
+  .tl { display: flex; gap: 3px; margin-bottom: 7px; overflow: hidden; border-radius: 4px; }
+  .tl-s { height: 7px; cursor: pointer; opacity: .75; transition: opacity .15s; }
+  .tl-s:hover { opacity: 1; }
+  .tl-s:first-child { border-radius: 3px 0 0 3px; }
+  .tl-s:last-child  { border-radius: 0 3px 3px 0; }
+  .tl-lbls { display: flex; justify-content: space-between; margin-bottom: 1.75rem; }
+  .tl-lbl { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  /* ── Legend ── */
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 1.75rem; padding: 11px 15px; background: var(--bg2); border-radius: var(--rsm); border: 1px solid var(--border); }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .leg-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── Phase ── */
+  .phase { margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; background: var(--bg2); }
+  .ph { padding: 15px 20px; display: flex; align-items: center; gap: 13px; cursor: pointer; user-select: none; transition: background .15s; }
+  .ph:hover { background: var(--bg3); }
+  .ph-stripe { width: 3px; height: 38px; border-radius: 2px; flex-shrink: 0; }
+  .ph-info { flex: 1; min-width: 0; }
+  .ph-name { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .ph-meta { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .ph-badge { font-size: 11px; padding: 4px 11px; border-radius: 20px; font-family: var(--mono); white-space: nowrap; font-weight: 600; flex-shrink: 0; }
+  .ph-chev { font-size: 15px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+  .ph-body { display: none; border-top: 1px solid var(--border); }
+  .ph-body.open { display: block; }
+
+  /* ── Week ── */
+  .week { padding: 20px 22px; border-bottom: 1px solid var(--border); }
+  .week:last-child { border-bottom: none; }
+  .wk-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+  .wk-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text2); font-family: var(--mono); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .wk-dates { font-size: 12px; color: var(--text3); font-family: var(--mono); white-space: nowrap; }
+  .wnum { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: var(--mono); font-weight: 700; }
+  .wn-b { background: var(--blue-bg); color: var(--blue-text); }
+  .wn-p { background: var(--purple-bg); color: var(--purple-text); }
+  .wn-t { background: var(--teal-bg); color: var(--teal-text); }
+
+  /* ── Two-col grid ── */
+  .dgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px; }
+  @media (max-width: 680px) { .dgrid { grid-template-columns: 1fr; } }
+  .dcol { background: var(--bg3); border-radius: var(--rsm); padding: 14px 16px; border: 1px solid var(--border); }
+  .dcol-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 11px; font-family: var(--mono); }
+
+  /* ── Deep list ── */
+  .dl { list-style: none; padding: 0; margin: 0; }
+  .dl li {
+    font-size: 14px;
+    color: var(--text2);
+    padding: 6px 0 6px 18px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+    position: relative;
+  }
+  .dl li:last-child { border-bottom: none; padding-bottom: 0; }
+  .dl li::before { content: '›'; color: var(--text3); position: absolute; left: 0; top: 7px; font-size: 15px; font-weight: 700; }
+  .dl li strong { color: var(--text); font-weight: 600; }
+  .dl li em { font-style: normal; color: var(--teal-text); font-weight: 500; }
+  .dl li code { font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; color: var(--amber-text); word-break: break-all; }
+
+  /* ── Resources ── */
+  .res { margin-top: 12px; padding: 10px 13px; background: rgba(255,255,255,0.025); border-radius: var(--rsm); border: 1px solid var(--border); }
+  .res-title { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 7px; font-family: var(--mono); }
+  .res-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  .rl { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--blue-text); text-decoration: none; padding: 4px 9px; background: var(--blue-bg); border-radius: 4px; line-height: 1.3; }
+  .rl:hover { opacity: .8; }
+  .rl::before { content: '↗'; font-size: 10px; opacity: .7; }
+
+  /* ── Day schedule ── */
+  .days { display: grid; grid-template-columns: repeat(5,1fr); gap: 7px; margin-top: 14px; }
+  @media (max-width: 600px) { .days { grid-template-columns: repeat(3,1fr); } }
+  .day { background: var(--bg3); border-radius: var(--rsm); padding: 10px 11px; border: 1px solid var(--border); text-align: center; }
+  .day-n { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); font-family: var(--mono); margin-bottom: 5px; }
+  .day-t { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .day-h { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: var(--mono); }
+
+  /* ── Notes ── */
+  .note { margin-top: 13px; padding: 12px 16px; border-radius: 0 var(--rsm) var(--rsm) 0; }
+  .note-coral { border-left: 2px solid var(--coral); background: var(--coral-bg); }
+  .note-blue  { border-left: 2px solid var(--blue);  background: var(--blue-bg);  }
+  .note-lbl { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; font-family: var(--mono); font-weight: 700; }
+  .note-coral .note-lbl { color: var(--coral-text); }
+  .note-blue  .note-lbl { color: var(--blue-text); }
+  .note p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .note p strong { font-weight: 600; }
+  .note-coral p strong { color: var(--coral-text); }
+  .note-blue  p strong { color: var(--blue-text); }
+
+  /* ── Milestone ── */
+  .ms { margin: 16px 0 4px; padding: 14px 18px; border-radius: var(--rsm); display: flex; gap: 13px; align-items: flex-start; }
+  .ms-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .ms-lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; font-family: var(--mono); font-weight: 700; }
+  .ms-txt { font-size: 14px; line-height: 1.6; }
+  .ms-b { background: var(--blue-bg); }
+  .ms-b .ms-lbl, .ms-b .ms-txt { color: var(--blue-text); }
+  .ms-p { background: var(--purple-bg); }
+  .ms-p .ms-lbl, .ms-p .ms-txt { color: var(--purple-text); }
+  .ms-t { background: var(--teal-bg); }
+  .ms-t .ms-lbl, .ms-t .ms-txt { color: var(--teal-text); }
+
+  /* ── Phase badge colors ── */
+  .p1-s { background: var(--blue); } .p1-bd { background: var(--blue-bg); color: var(--blue-text); }
+  .p2-s { background: var(--purple); } .p2-bd { background: var(--purple-bg); color: var(--purple-text); }
+  .p3-s { background: var(--teal); } .p3-bd { background: var(--teal-bg); color: var(--teal-text); }
+
+  /* ── MVP checklist ── */
+  .mvp { margin-top: 1.75rem; background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r); overflow: hidden; }
+  .mvp-hdr { padding: 13px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; background: var(--bg3); }
+  .mvp-hdr-txt { font-size: 15px; font-weight: 600; color: var(--text); }
+  .mvp-body { padding: 16px 20px; }
+  .mvp-steps { list-style: none; counter-reset: s; padding: 0; }
+  .mvp-steps li {
+    counter-increment: s;
+    position: relative;
+    padding: 9px 0 9px 38px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .mvp-steps li:last-child { border-bottom: none; padding-bottom: 0; }
+  .mvp-steps li::before {
+    content: counter(s);
+    position: absolute; left: 0; top: 9px;
+    width: 24px; height: 24px;
+    background: var(--teal-bg); color: var(--teal-text);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; font-family: var(--mono);
+  }
+  .mvp-steps li em { font-style: normal; color: var(--teal-text); font-weight: 600; }
+
+  code { font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; color: var(--amber-text); }
+  a { color: var(--blue-text); }
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div class="page">
+
+  <div class="doc-header">
+    <p class="eyebrow">THESIS PREP · DETAILED BREAKDOWN</p>
+    <h1 class="doc-title">Phases 1 – 3 Deep Dive</h1>
+    <p class="doc-sub">June 26 → September 30, 2026 · 13 weeks · Goal: working prototype + supervisor approach</p>
+  </div>
+
+  <div class="tl">
+    <div class="tl-s" style="background:var(--blue);flex:4" onclick="openP('p1')" title="Phase 1"></div>
+    <div class="tl-s" style="background:var(--purple);flex:3" onclick="openP('p2')" title="Phase 2"></div>
+    <div class="tl-s" style="background:var(--teal);flex:6" onclick="openP('p3')" title="Phase 3"></div>
+  </div>
+  <div class="tl-lbls">
+    <span class="tl-lbl">Jun 26</span>
+    <span class="tl-lbl">Aug 15</span>
+    <span class="tl-lbl">Sep 30</span>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>Cybersecurity / Networks</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--purple)"></div>ML / Deep learning</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--teal)"></div>Computer vision</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>GPU / CUDA</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--coral)"></div>Prototype / Lab</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Math / Theory</div>
+  </div>
+
+<!-- ═══════════════════════ PHASE 1 ═══════════════════════ -->
+<div class="phase" id="p1">
+  <div class="ph" onclick="tog('p1')">
+    <div class="ph-stripe p1-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 1 — Network security & cryptography revision</p>
+      <p class="ph-meta">Jun 26 – Jul 24 · 4 weeks · Skills 7 + 8 · Python side-thread starts</p>
+    </div>
+    <span class="ph-badge p1-bd">NETWORK · CRYPTO</span>
+    <span class="ph-chev" id="p1-c">▾</span>
+  </div>
+  <div class="ph-body open" id="p1-b">
+
+    <!-- W1 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-b">W1</span>Wired foundations</span>
+        <span class="wk-dates">Jun 26 – Jul 2</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Routing tables</strong> — how a router decides the next hop: longest prefix match, administrative distance, static vs dynamic routes (RIP, OSPF, BGP differences)</li>
+            <li><strong>VLANs (802.1Q)</strong> — trunk vs access ports, VLAN tagging in the Ethernet frame, inter-VLAN routing via Layer 3 switch or router-on-a-stick</li>
+            <li><strong>ARP in depth</strong> — full request/reply cycle, gratuitous ARP, ARP cache poisoning mechanics — how an attacker inserts their MAC into victims' caches</li>
+            <li><strong>DNS internals</strong> — recursive vs iterative resolution, TTL, zone transfers, DNS poisoning and cache poisoning attack vectors</li>
+            <li><strong>ICMP</strong> — error message types (Type 3 unreachable, Type 11 TTL exceeded), how traceroute exploits TTL expiry to map network hops</li>
+            <li><strong>Python NumPy</strong> — arrays, slicing, broadcasting, axis operations. 30 min/day only — keep it applied to network data</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.youtube.com/@NetworkChuck" target="_blank">NetworkChuck YouTube</a>
+              <a class="rl" href="https://www.youtube.com/@ProfessorMesser" target="_blank">Professor Messer YouTube</a>
+              <a class="rl" href="https://www.practicalnetworking.net/series/packet-traveling/packet-traveling/" target="_blank">Practical Networking</a>
+              <a class="rl" href="https://numpy.org/doc/stable/user/quickstart.html" target="_blank">NumPy quickstart</a>
+              <a class="rl" href="https://www.wireshark.org/docs/wsug_html/" target="_blank">Wireshark User Guide</a>
+              <a class="rl" href="https://www.cloudflare.com/learning/dns/what-is-dns/" target="_blank">Cloudflare DNS guide</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Wireshark ARP lab</strong> — open Wireshark, filter <code>arp</code>, ping a device on your LAN, observe the ARP request/reply pair. Note the source/destination MAC and IP in each frame.</li>
+            <li><strong>Wireshark DNS lab</strong> — filter <code>dns</code>, open any website, follow the DNS UDP stream, identify the recursive query and the A-record response</li>
+            <li><strong>Python pcap parser</strong> — install <code>scapy</code>, write a script that reads a <code>.pcap</code> file (save one from Wireshark), extracts src IP, dst IP, protocol for each packet into a Pandas DataFrame, saves to CSV</li>
+            <li><strong>Expected output</strong> — a <code>packets.csv</code> file you reload next week for feature engineering practice</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Tools</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.wireshark.org/download.html" target="_blank">Wireshark download</a>
+              <a class="rl" href="https://scapy.readthedocs.io/en/latest/" target="_blank">Scapy docs</a>
+              <a class="rl" href="https://github.com/CoreSecurity/impacket" target="_blank">Impacket (network tools)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 Why this matters for your thesis</p>
+        <p>ARP spoofing and DNS poisoning are two of the attack vectors your CV pipeline will need to detect. Understanding the protocol mechanics now means your feature engineering choices in Week 4 will be informed, not random. You're not learning this for a networking exam — you're building context for what "anomalous traffic" actually looks like at the frame level.</p>
+      </div>
+      <div class="days">
+        <div class="day"><div class="day-n">Mon</div><div class="day-t">Routing + VLANs theory</div><div class="day-h">3–4h</div></div>
+        <div class="day"><div class="day-n">Tue</div><div class="day-t">ARP + DNS deep dive</div><div class="day-h">3–4h</div></div>
+        <div class="day"><div class="day-n">Wed</div><div class="day-t">ICMP + NumPy practice</div><div class="day-h">2h + 30m</div></div>
+        <div class="day"><div class="day-n">Thu</div><div class="day-t">Wireshark labs 1 & 2</div><div class="day-h">3h lab</div></div>
+        <div class="day"><div class="day-n">Fri</div><div class="day-t">Python pcap script</div><div class="day-h">2h code</div></div>
+      </div>
+    </div>
+
+    <!-- W2 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-b">W2</span>Wireless security</span>
+        <span class="wk-dates">Jul 3 – Jul 9</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>802.11 MAC frame structure</strong> — management / control / data frame subtypes, the frame control field bits that identify each type</li>
+            <li><strong>WPA2 4-way handshake</strong> — PTK derivation from ANonce/SNonce, MIC verification, why capturing this handshake allows offline dictionary attack</li>
+            <li><strong>Evil Twin attack</strong> — beacon frame spoofing, why client devices probe for known SSIDs and connect automatically, deauthentication flood technique</li>
+            <li><strong>WPA3 PMF (802.11w)</strong> — Protected Management Frames: encrypts deauth and disassoc frames, why Evil Twin is significantly harder but not impossible under WPA3</li>
+            <li><strong>PMKID attack</strong> — newer technique that doesn't require capturing a handshake, extracts key material from a single EAPOL frame</li>
+            <li><strong>Python Pandas</strong> — <code>read_csv</code>, <code>groupby</code>, <code>value_counts</code>, filtering rows, chaining methods. 30 min/day.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.aircrack-ng.org/documentation.html" target="_blank">Aircrack-ng docs</a>
+              <a class="rl" href="https://pandas.pydata.org/docs/user_guide/10min.html" target="_blank">Pandas 10-minute guide</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=W9KCWF1AWBE" target="_blank">WPA2 handshake explained (YT)</a>
+              <a class="rl" href="https://www.cisa.gov/sites/default/files/publications/Wi-Fi-Protected-Access-WPA3.pdf" target="_blank">CISA WPA3 guidance</a>
+              <a class="rl" href="https://ieee802.org/11/Reports/802.11_Timelines.htm" target="_blank">IEEE 802.11 standard timeline</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Monitor mode setup</strong> — <code>sudo airmon-ng start wlan0</code>, run <code>airodump-ng wlan0mon</code>, observe BSSID/SSID/channel/signal for nearby APs. Notice beacon frame intervals.</li>
+            <li><strong>Capture WPA2 handshake (your own network)</strong> — use <code>airodump-ng -c [channel] --bssid [AP-MAC] -w capture wlan0mon</code>, then briefly deauth your own phone with <code>aireplay-ng --deauth 3</code>, confirm you captured 4 EAPOL frames in Wireshark</li>
+            <li><strong>Annotate the handshake</strong> — in Wireshark, label each of the 4 EAPOL frames: (1) ANonce from AP, (2) SNonce+MIC from client, (3) GTK from AP, (4) ACK from client. Screenshot for thesis notes.</li>
+            <li><strong>Python lab</strong> — load your Week 1 <code>packets.csv</code>, group by protocol, count packets per source IP, identify the top-5 talkers, visualize with a horizontal <code>matplotlib</code> bar chart</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Tools</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.kali.org/tools/aircrack-ng/" target="_blank">Kali aircrack-ng suite</a>
+              <a class="rl" href="https://github.com/ZerBea/hcxtools" target="_blank">hcxtools (PMKID)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Dr. Zeraoulia connection</p>
+        <p>His paper <em>"Intelligent detection of MAC spoofing attack in 802.11 network"</em> covers exactly this protocol layer. When you approach him as a supervisor candidate, mentioning that your thesis builds a CV-based detector for the same class of attacks he published on is the single strongest opening line you can write in that email.</p>
+      </div>
+    </div>
+
+    <!-- W3 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-b">W3</span>Cryptography fundamentals</span>
+        <span class="wk-dates">Jul 10 – Jul 16</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>AES (symmetric)</strong> — block cipher, key sizes (128/192/256 bit), modes of operation: ECB (broken), CBC (IV-dependent), GCM (authenticated encryption). Know exactly why ECB leaks structure visually.</li>
+            <li><strong>RSA (asymmetric)</strong> — key pair generation from two primes, modular exponentiation, why factoring is computationally hard, digital signature = encrypt with private key</li>
+            <li><strong>SHA-256 + salts</strong> — one-way hash, avalanche effect, why rainbow tables fail with unique salts, bcrypt/Argon2 vs plain SHA for password storage</li>
+            <li><strong>TLS 1.3 handshake</strong> — ClientHello, ServerHello, certificate chain validation, symmetric session key derivation via ECDHE, why 1.3 removed RSA key exchange</li>
+            <li><strong>Pass-the-hash (PTH)</strong> — NTLM hash capture without plaintext, lateral movement using the hash directly against SMB/WinRM, why this bypasses password length requirements</li>
+            <li><strong>SSL stripping / HSTS</strong> — sslstrip downgrade attack, HTTP Strict Transport Security header as defense, HSTS preload lists</li>
+          </ul>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Python crypto lab</strong> — hash a password with <code>hashlib.sha256</code>, add a random salt with <code>os.urandom(16)</code>, store as <code>salt + hash</code>, verify a subsequent login attempt. Understand why the salt must be stored.</li>
+            <li><strong>ECB penguin demo</strong> — use the <code>pycryptodome</code> library to encrypt a bitmap image with AES-ECB and AES-CBC. Compare: ECB reveals the image's structure, CBC is indistinguishable from noise. <em>This is the direct theoretical basis for MalImg working as a classification method.</em></li>
+            <li><strong>Wireshark TLS capture</strong> — open any HTTPS site, capture with Wireshark, filter <code>tls</code>, identify ClientHello (note cipher suites offered), ServerHello (note chosen cipher), Certificate, and Finished frames</li>
+            <li><strong>Weak hash detector script</strong> — download the first 10,000 lines of rockyou.txt, MD5-hash each, build a lookup dict. Given a list of MD5 hashes from a sample breach file, report which ones crack immediately.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://cryptohack.org" target="_blank">CryptoHack (challenges)</a>
+              <a class="rl" href="https://docs.python.org/3/library/hashlib.html" target="_blank">Python hashlib docs</a>
+              <a class="rl" href="https://pycryptodome.readthedocs.io/en/latest/" target="_blank">PyCryptodome docs</a>
+              <a class="rl" href="https://tls13.xargs.org" target="_blank">TLS 1.3 illustrated</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=0D7OwYp6ZEc" target="_blank">AES modes visualized (YT)</a>
+              <a class="rl" href="https://haveibeenpwned.com/Passwords" target="_blank">HaveIBeenPwned Passwords API</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 ECB penguin → MalImg connection</p>
+        <p>The ECB penguin experiment gives you a concrete, visual proof that <strong>data structure is preserved in naive encryption — and in raw byte layout</strong>. This is exactly why malware binary visualization works: the structural byte patterns of each malware family are visually distinct even without decryption or decompilation. You'll reference this intuition when explaining MalImg to your committee.</p>
+      </div>
+    </div>
+
+    <!-- W4 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-b">W4</span>IDS concepts + NSL-KDD first contact</span>
+        <span class="wk-dates">Jul 17 – Jul 24</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>IDS vs IPS</strong> — detection-only vs active inline blocking, signature-based (known attacks) vs anomaly-based (statistical deviation from baseline), hybrid approaches</li>
+            <li><strong>NIST Cybersecurity Framework v2.0</strong> — Govern / Identify / Protect / Detect / Respond / Recover. Your thesis addresses the <em>Detect</em> function specifically. Know which NIST subcategory your system maps to.</li>
+            <li><strong>MITRE ATT&CK</strong> — tactics vs techniques vs sub-techniques vs procedures. Focus on: Initial Access (T1190, T1566), Lateral Movement (T1021), Exfiltration (T1041). Know how to read a technique page.</li>
+            <li><strong>NSL-KDD dataset structure</strong> — 41 input features, 5 traffic classes (Normal, DoS, Probe, R2L, U2R), why it improves on KDD'99 (removed duplicates, balanced class difficulty)</li>
+            <li><strong>NSL-KDD feature categories</strong> — basic connection features (duration, protocol_type, service), content features (num_failed_logins, logged_in), traffic features (count, srv_count, serror_rate)</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://attack.mitre.org" target="_blank">MITRE ATT&CK navigator</a>
+              <a class="rl" href="https://www.nist.gov/cyberframework" target="_blank">NIST CSF v2.0</a>
+              <a class="rl" href="https://www.unb.ca/cic/datasets/nsl.html" target="_blank">NSL-KDD dataset (UNB)</a>
+              <a class="rl" href="https://kdd.ics.uci.edu/databases/kddcup99/task.html" target="_blank">KDD'99 feature descriptions</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Download & load NSL-KDD</strong> — from UNB CIC above, download <code>KDDTrain+.txt</code> and <code>KDDTest+.txt</code>. Load with Pandas (no header row — assign column names from the KDD'99 feature list). Check <code>df.shape</code> and <code>df.dtypes</code>.</li>
+            <li><strong>Explore class distribution</strong> — <code>df['label'].value_counts()</code>, calculate class ratios, plot as a horizontal bar chart. Note the imbalance: U2R has ~50 samples, DoS has ~45,000. This imbalance matters for your model evaluation.</li>
+            <li><strong>Feature engineering</strong> — encode the 3 categorical columns (<code>protocol_type</code>, <code>service</code>, <code>flag</code>) with <code>LabelEncoder</code>, normalize all numeric columns with <code>MinMaxScaler</code>. Save as <code>nslkdd_clean.csv</code>.</li>
+            <li><strong>Visualize feature relationships</strong> — scatter plot <code>src_bytes</code> vs <code>dst_bytes</code> colored by attack class. Use <code>seaborn.pairplot</code> on 4–5 high-importance features. Can you visually separate the classes?</li>
+            <li><strong>Correlation heatmap</strong> — <code>df.corr()</code> visualized with <code>seaborn.heatmap</code>. Identify the top 5 features most correlated with the label. Write them down — they'll appear in your feature importance analysis in Phase 2.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://scikit-learn.org/stable/modules/preprocessing.html" target="_blank">sklearn preprocessing</a>
+              <a class="rl" href="https://seaborn.pydata.org/tutorial.html" target="_blank">Seaborn tutorial</a>
+              <a class="rl" href="https://pandas.pydata.org/docs/user_guide/visualization.html" target="_blank">Pandas visualization</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 Why meeting NSL-KDD 6 weeks early matters</p>
+        <p>Most students who use this dataset for a thesis don't know what the features actually mean. When Dr. Guerroumi asks <strong>"why did you select these features?"</strong> you'll have an answer grounded in the correlation analysis you ran today — not a guess. The clean CSV you save this week is the direct input to your first model in Phase 2.</p>
+      </div>
+
+      <div class="ms ms-b">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 1 milestone — Jul 24</p>
+          <p class="ms-txt">You can capture, filter and parse network traffic in Wireshark and Python. You understand ARP spoofing, 802.11 handshake mechanics, and cryptographic primitives at the level needed to explain your threat model. You have a clean NSL-KDD CSV ready for modeling. Python Pandas and NumPy are operational tools, not unfamiliar libraries.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /p1-body -->
+</div><!-- /phase p1 -->
+
+
+<!-- ═══════════════════════ PHASE 2 ═══════════════════════ -->
+<div class="phase" id="p2">
+  <div class="ph" onclick="tog('p2')">
+    <div class="ph-stripe p2-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 2 — OS internals + ML fundamentals + CV intro</p>
+      <p class="ph-meta">Jul 25 – Aug 14 · 3 weeks · Skills 3 + 4 + first OpenCV</p>
+    </div>
+    <span class="ph-badge p2-bd">ML · OS · CV</span>
+    <span class="ph-chev" id="p2-c">▾</span>
+  </div>
+  <div class="ph-body" id="p2-b">
+
+    <!-- W5 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-p">W5</span>OS internals + first ML model</span>
+        <span class="wk-dates">Jul 25 – Jul 31</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Windows PE format</strong> — DOS header (MZ magic), PE header, optional header (entry point, image base), section table (.text code, .data globals, .rsrc resources, .idata imports). This is the structure malware lives inside.</li>
+            <li><strong>Windows Registry persistence</strong> — hive structure (HKLM, HKCU, HKCR), the persistence keys (<code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code>), how malware survives reboots</li>
+            <li><strong>Windows API injection trio</strong> — <code>VirtualAllocEx</code> (allocate memory in target process), <code>WriteProcessMemory</code> (write shellcode), <code>CreateRemoteThread</code> (execute it). These 3 API calls appear in virtually every process injection technique.</li>
+            <li><strong>Linux /proc filesystem</strong> — <code>/proc/[pid]/maps</code> (memory map), <code>/proc/[pid]/fd</code> (open files), <code>/proc/[pid]/net/tcp</code> (network connections). Reading /proc is how Linux security tools get ground truth.</li>
+            <li><strong>ML theory foundations</strong> — loss function as "how wrong are we", gradient descent as iterative hill descent, learning rate effect, overfitting vs underfitting. Keep it conceptual not mathematical.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://learn.microsoft.com/en-us/windows/win32/debug/pe-format" target="_blank">PE Format spec (MSDN)</a>
+              <a class="rl" href="https://docs.microsoft.com/en-us/sysinternals/downloads/procmon" target="_blank">Sysinternals ProcMon</a>
+              <a class="rl" href="https://scikit-learn.org/stable/getting_started.html" target="_blank">scikit-learn getting started</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank">3Blue1Brown — neural nets (YT)</a>
+              <a class="rl" href="https://github.com/erocarrera/pefile" target="_blank">pefile Python library</a>
+              <a class="rl" href="https://man7.org/linux/man-pages/man5/proc.5.html" target="_blank">Linux /proc man page</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Sysinternals ProcMon</strong> — run it, open Notepad, filter by process name. Observe: Registry reads on startup, DLL loads, temp file creation. This is what "normal" baseline behavior looks like — your detector needs to know this.</li>
+            <li><strong>PE header with pefile</strong> — <code>pip install pefile</code>, then: <code>pe = pefile.PE('C:/Windows/System32/notepad.exe')</code>, iterate <code>pe.DIRECTORY_ENTRY_IMPORT</code>, print each DLL and its imported functions. Flag any that would be suspicious if found in an unknown binary.</li>
+            <li><strong>IsolationForest on NSL-KDD</strong> — load <code>nslkdd_clean.csv</code>, train <code>IsolationForest(contamination=0.1)</code>, compare its anomaly flags against the true labels. Calculate how many DoS samples it flagged correctly vs how many Normal samples it incorrectly flagged.</li>
+            <li><strong>Linux /proc exploration</strong> — run <code>cat /proc/self/status</code> (current process info), <code>cat /proc/self/maps</code> (memory regions), <code>ls /proc/self/fd</code> (open file descriptors). Understand each output field.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html" target="_blank">IsolationForest API</a>
+              <a class="rl" href="https://github.com/Sysinternals/SysinternalsSuite" target="_blank">Sysinternals Suite download</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Dr. Guerroumi defense prep</p>
+        <p>He asked a student: <em>"you could have skipped this phase and used AI directly."</em> Your answer for OS internals: <strong>you need PE format and API knowledge to explain why byte-level binary visualization preserves malware family structure</strong>. Without understanding what lives in each PE section, you can't defend the MalImg approach theoretically. You're not studying OS internals for their own sake — you're building the vocabulary to explain your design choices.</p>
+      </div>
+    </div>
+
+    <!-- W6 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-p">W6</span>Supervised ML + OpenCV intro</span>
+        <span class="wk-dates">Aug 1 – Aug 7</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Supervised classification pipeline</strong> — stratified train/val/test split (important with imbalanced NSL-KDD), why the test set must never be touched until final evaluation, data leakage definition and examples</li>
+            <li><strong>Evaluation metrics for imbalanced data</strong> — why accuracy is misleading (a classifier that predicts all Normal gets 80% accuracy but detects no attacks), precision/recall tradeoff, F1 macro vs weighted, ROC-AUC, precision-recall curve</li>
+            <li><strong>Random Forest</strong> — bagging ensemble of decision trees, feature importance via Gini impurity decrease, why it handles mixed numerical/categorical features and class imbalance better than a single tree</li>
+            <li><strong>Bayes theorem for anomaly detection</strong> — P(attack|features) = P(features|attack) × P(attack) / P(features). Intuition: prior probability of an attack type multiplied by how likely those features are given that attack type.</li>
+            <li><strong>OpenCV basics</strong> — image as a 3D NumPy array (H×W×C), BGR vs RGB color order, grayscale conversion, pixel value ranges, basic arithmetic on image arrays</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://scikit-learn.org/stable/modules/ensemble.html#forest" target="_blank">sklearn Random Forest docs</a>
+              <a class="rl" href="https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html" target="_blank">OpenCV Python tutorials</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=v_Sm2O4bPxk" target="_blank">ROC & AUC explained (YT)</a>
+              <a class="rl" href="https://imbalanced-learn.org/stable/" target="_blank">imbalanced-learn (SMOTE)</a>
+              <a class="rl" href="https://mlcourse.ai/book/topic03/topic03_decision_trees_random_forests.html" target="_blank">mlcourse.ai — Random Forest</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Random Forest on NSL-KDD</strong> — stratified <code>train_test_split</code> (test_size=0.2, stratify=y), train <code>RandomForestClassifier(n_estimators=100)</code>, evaluate with <code>classification_report</code>. Note F1 per class, especially the rare U2R class.</li>
+            <li><strong>Feature importance plot</strong> — <code>clf.feature_importances_</code>, sort descending, plot the top-15 features as a horizontal bar chart with <code>matplotlib</code>. <em>Save this figure — it's a thesis result.</em> Which features dominate? Are they what you expected from the Week 4 correlation analysis?</li>
+            <li><strong>Confusion matrix</strong> — <code>seaborn.heatmap(confusion_matrix(...))</code>, normalize by true label count. Identify which attack types are hardest to distinguish from Normal traffic.</li>
+            <li><strong>OpenCV first steps</strong> — load a Wireshark screenshot with <code>cv2.imread</code>, convert to grayscale with <code>cv2.cvtColor</code>, apply Canny edge detection with <code>cv2.Canny</code>. Display side-by-side with <code>matplotlib</code>. What structure does Canny preserve?</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html" target="_blank">sklearn confusion matrix</a>
+              <a class="rl" href="https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html" target="_blank">OpenCV Canny tutorial</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 Feature importance is your first thesis result</p>
+        <p>The feature importance bar chart answers a committee question before they ask it: <strong>"why not use all 41 NSL-KDD features?"</strong> Your answer: <em>the top 8–10 features capture ~85% of the signal; beyond that, adding features increases noise and computation cost without measurably improving F1. The importance scores are data-driven, not arbitrary.</em> Save the figure to your <code>results/</code> GitHub folder now.</p>
+      </div>
+      <div class="days">
+        <div class="day"><div class="day-n">Mon</div><div class="day-t">Split + metrics theory</div><div class="day-h">3h</div></div>
+        <div class="day"><div class="day-n">Tue</div><div class="day-t">Random Forest + Bayes</div><div class="day-h">3h</div></div>
+        <div class="day"><div class="day-n">Wed</div><div class="day-t">OpenCV basics</div><div class="day-h">2h + 30m lab</div></div>
+        <div class="day"><div class="day-n">Thu</div><div class="day-t">Full RF pipeline on NSL-KDD</div><div class="day-h">3h lab</div></div>
+        <div class="day"><div class="day-n">Fri</div><div class="day-t">Feature plot + OpenCV Canny</div><div class="day-h">2h code</div></div>
+      </div>
+    </div>
+
+    <!-- W7 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-p">W7</span>Neural networks + CUDA review begins</span>
+        <span class="wk-dates">Aug 8 – Aug 14</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Perceptron → MLP</strong> — single neuron (weighted sum + bias + activation), stacking layers, how depth enables more complex decision boundaries. Activation functions: ReLU (no vanishing gradient), sigmoid (binary output), softmax (multiclass probabilities).</li>
+            <li><strong>Backpropagation intuition</strong> — chain rule as "how much did each weight contribute to the error". Don't derive it mathematically — understand the direction: gradients flow backward, weights adjust proportionally to their contribution to the loss.</li>
+            <li><strong>PyTorch training loop</strong> — <code>model.forward(x)</code> → <code>loss = criterion(output, y)</code> → <code>loss.backward()</code> → <code>optimizer.step()</code> → <code>optimizer.zero_grad()</code>. Know why you zero gradients every step.</li>
+            <li><strong>CV feature extraction</strong> — HOG (Histogram of Oriented Gradients): divides image into cells, computes gradient direction histogram per cell. Why edges/gradients encode shape information better than raw pixels for classification.</li>
+            <li><strong>CUDA thread hierarchy review</strong> — from your stored modules: thread → warp (32 threads) → block → grid. Why warps execute in lockstep (SIMT). Memory types: registers (fastest, per-thread), shared memory (fast, per-block), global memory (slow, all threads).</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pytorch.org/tutorials/beginner/blitz/tensor_tutorial.html" target="_blank">PyTorch 60-min blitz</a>
+              <a class="rl" href="https://pytorch.org/tutorials/beginner/nn_tutorial.html" target="_blank">PyTorch nn.Module tutorial</a>
+              <a class="rl" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html" target="_blank">CUDA C Programming Guide</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=VMj-3S1tku0" target="_blank">Andrej Karpathy — micrograd (YT)</a>
+              <a class="rl" href="https://learnopencv.com/histogram-of-oriented-gradients/" target="_blank">HOG explained (LearnOpenCV)</a>
+              <a class="rl" href="https://colab.research.google.com" target="_blank">Google Colab (free GPU)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>PyTorch MLP on NSL-KDD (Colab)</strong> — build: <code>Linear(41→128) → ReLU → Dropout(0.3) → Linear(128→64) → ReLU → Linear(64→5)</code>. Train 30 epochs with <code>CrossEntropyLoss</code> + <code>Adam</code>. Compare macro-F1 to your Random Forest from W6 — document both scores side by side.</li>
+            <li><strong>Training loss curve</strong> — plot train loss vs validation loss over epochs with <code>matplotlib</code>. Is validation loss increasing while train loss decreases? That's overfitting — note it, it's a result to report.</li>
+            <li><strong>HOG feature extraction lab</strong> — use <code>skimage.feature.hog</code> on 10 Wireshark screenshots of normal traffic and 10 of attack traffic. Compute histograms, compare visually. Are attack-traffic screenshots distinguishable by HOG features?</li>
+            <li><strong>CUDA memory review notebook</strong> — in your stored NVIDIA modules, find the memory hierarchy section. Draw (on paper or draw.io) the latency + size for each memory type. This diagram appears in your thesis background section.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pytorch.org/docs/stable/nn.html" target="_blank">PyTorch nn docs</a>
+              <a class="rl" href="https://scikit-image.org/docs/stable/api/skimage.feature.html#skimage.feature.hog" target="_blank">skimage HOG API</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 MLP vs Random Forest — your second thesis result</p>
+        <p>If Random Forest outperforms the MLP here (likely on this tabular dataset), that's a genuinely interesting and defensible result: <strong>deep learning is not always better</strong>, and tabular security data with explicit features often favors tree-based methods. Reporting this honestly — and explaining why — shows your committee you understand your own system's trade-offs.</p>
+      </div>
+
+      <div class="ms ms-p">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 2 milestone — Aug 14</p>
+          <p class="ms-txt">Three trained models on NSL-KDD (IsolationForest + Random Forest + MLP) with documented F1 comparison. Feature importance plot saved as a thesis figure. OpenCV pipeline extracting HOG features from network screenshots. PyTorch training loop working in Colab. CUDA memory hierarchy understood and diagrammed.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /p2-body -->
+</div><!-- /phase p2 -->
+
+
+<!-- ═══════════════════════ PHASE 3 ═══════════════════════ -->
+<div class="phase" id="p3">
+  <div class="ph" onclick="tog('p3')">
+    <div class="ph-stripe p3-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 3 — Deep learning + malware analysis + prototype build</p>
+      <p class="ph-meta">Aug 15 – Sep 30 · 6.5 weeks · Skills 2 + 5 + 6 + 12 → working prototype</p>
+    </div>
+    <span class="ph-badge p3-bd">CNN · MALWARE · PROTO</span>
+    <span class="ph-chev" id="p3-c">▾</span>
+  </div>
+  <div class="ph-body" id="p3-b">
+
+    <!-- W8 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-t">W8</span>CNNs + malware as images</span>
+        <span class="wk-dates">Aug 15 – Aug 21</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Convolution operation</strong> — a kernel (filter matrix) sliding across an image, computing dot products to produce a feature map. Early layers detect edges; deeper layers detect textures, patterns, shapes. Receptive field grows with depth.</li>
+            <li><strong>CNN architecture</strong> — Conv2D → BatchNorm → ReLU → MaxPool sequence, why pooling reduces spatial dimensions while retaining dominant features, Flatten → Dense → Softmax for classification output</li>
+            <li><strong>MalImg dataset</strong> — Nataraj et al. (2011): malware binary bytes read sequentially and rendered as a grayscale image where each byte = one pixel. 9,339 samples across 25 malware families. Key insight: <em>malware families share structural byte layout patterns visible as distinct image textures</em>.</li>
+            <li><strong>Static malware analysis</strong> — file hash (MD5/SHA256) as fingerprint, <code>strings</code> command to extract ASCII/Unicode artifacts, PE import table as behavioral indicator before execution</li>
+            <li><strong>Malicious API call patterns</strong> — <code>VirtualAllocEx + WriteProcessMemory + CreateRemoteThread</code> = process injection. <code>RegSetValueEx + HKCU\Run</code> = persistence. <code>InternetOpenUrl + HttpSendRequest</code> = C2 callback.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://arxiv.org/abs/1802.04528" target="_blank">MalImg paper (arXiv)</a>
+              <a class="rl" href="https://ghidra-sre.org" target="_blank">Ghidra download (NSA)</a>
+              <a class="rl" href="https://cs231n.stanford.edu/slides/" target="_blank">CS231n slides (Stanford)</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=KuXjwB4LzSA" target="_blank">CNN visualized (YT 3B1B)</a>
+              <a class="rl" href="https://github.com/DidierStevens/DidierStevensSuite" target="_blank">Didier Stevens malware tools</a>
+              <a class="rl" href="https://any.run" target="_blank">ANY.RUN sandbox (online)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab</p>
+          <ul class="dl">
+            <li><strong>Binary visualization script</strong> — Python: open any <code>.exe</code> as binary (<code>open('calc.exe','rb').read()</code>), convert bytes to a NumPy array, reshape to <code>(-1, 256)</code>, save as grayscale PNG with <code>PIL.Image.fromarray</code>. Run on 3–4 different executables and compare the visual textures. <em>This script is the core of your CV preprocessing pipeline.</em></li>
+            <li><strong>Simple CNN on MalImg (Colab)</strong> — download MalImg from Kaggle or the paper's supplementary, build a 3-layer CNN in PyTorch, train 30 epochs, report per-class accuracy and macro-F1. Use <code>class_weight</code> or <code>WeightedRandomSampler</code> for the imbalanced classes.</li>
+            <li><strong>Visualize first-layer filters</strong> — after training, plot the learned filter weights as 8×8 grids with <code>matplotlib</code>. What visual features (edges, textures) did the first layer learn to detect?</li>
+            <li><strong>Ghidra static analysis</strong> — open <code>calc.exe</code> in Ghidra, go to Window → Imports, list all DLLs and functions. Identify any that would be flagged as suspicious in an unknown binary. No reverse engineering needed — just import table inspection.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.kaggle.com/datasets/manaskhatri/malimg-dataset" target="_blank">MalImg on Kaggle</a>
+              <a class="rl" href="https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html" target="_blank">PyTorch CIFAR CNN tutorial</a>
+              <a class="rl" href="https://ghidra-sre.org/CheatSheet.html" target="_blank">Ghidra cheat sheet</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 The binary visualization script is the heart of your thesis</p>
+        <p>When a committee member asks <em>"why use computer vision for malware?"</em> — open two PNGs side by side: a ransomware binary and a benign executable. The visual texture difference is immediately obvious without any explanation. <strong>That's the argument made visible.</strong> The script you write this week is the first line of your CV preprocessing pipeline — it will still be running in your final prototype 6 weeks from now.</p>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Dr. Guerroumi question prep</p>
+        <p><strong>"Why not use traditional feature-based ML on the binary (API calls, entropy, file size)?"</strong> Your answer: feature-based approaches require domain expertise per feature, are brittle to packer obfuscation (which scrambles API call sequences), and don't generalize to novel malware families. Byte-level visualization is obfuscation-resistant because structural memory layout patterns persist even when code is repacked. The MalImg benchmark empirically supports this — CNN accuracy matches or exceeds feature-based approaches on the standard benchmark. Document this reasoning in your thesis notes now.</p>
+      </div>
+    </div>
+
+    <!-- W9 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-t">W9</span>Transfer learning + CUDA kernels</span>
+        <span class="wk-dates">Aug 22 – Aug 28</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Transfer learning</strong> — ImageNet pretrained weights encode general visual feature detectors (edges, textures, shapes) in early layers. Fine-tuning replaces the final classification head and retrains it on your domain. Works even when your domain (malware bytes) looks nothing like ImageNet photos — the low-level feature detectors still apply.</li>
+            <li><strong>ResNet18 architecture</strong> — residual connections (skip connections) allow gradients to flow unimpeded through identity shortcuts, solving the vanishing gradient problem in 18-layer deep networks. ~11M parameters, fast to fine-tune.</li>
+            <li><strong>CUDA kernel syntax</strong> — <code>__global__ void kernel_name(float* data, int n)</code>, thread index via <code>threadIdx.x + blockIdx.x * blockDim.x</code>, bounds check <code>if (idx < n)</code>, launching with <code>kernel<<<blocks, threads>>>(args)</code></li>
+            <li><strong>Memory coalescing</strong> — when threads in a warp access consecutive memory addresses, the hardware combines them into a single transaction (coalesced = fast). Strided or random access = multiple transactions = slow. For image processing: access row-major, don't stride.</li>
+            <li><strong>FP16 mixed precision</strong> — <code>torch.cuda.amp.autocast()</code> runs forward pass in FP16 (half the memory, 2× throughput on Tensor Cores), keeps master weights in FP32 for numerical stability. Near-free speedup on A100/V100.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html" target="_blank">PyTorch transfer learning guide</a>
+              <a class="rl" href="https://pytorch.org/docs/stable/notes/amp_examples.html" target="_blank">PyTorch AMP (mixed precision)</a>
+              <a class="rl" href="https://developer.nvidia.com/blog/mixed-precision-training-deep-neural-networks/" target="_blank">NVIDIA mixed precision blog</a>
+              <a class="rl" href="https://arxiv.org/abs/1512.03385" target="_blank">ResNet paper (He et al. 2015)</a>
+              <a class="rl" href="https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/" target="_blank">CUDA grid-stride loops</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔬 Hands-on lab — benchmark week</p>
+          <ul class="dl">
+            <li><strong>Fine-tune ResNet18 on MalImg (Colab A100)</strong> — <code>models.resnet18(pretrained=True)</code>, freeze all layers with <code>param.requires_grad=False</code>, replace <code>model.fc = nn.Linear(512, 25)</code>, unfreeze last 2 layers, train 20 epochs with <code>Adam(lr=1e-4)</code>. Compare accuracy to your custom CNN from W8.</li>
+            <li><strong>CPU vs GPU inference benchmark</strong> — run inference on 1,000 MalImg test samples: (1) CPU only (<code>model.to('cpu')</code>), (2) Colab T4, (3) Colab A100. Use <code>time.perf_counter()</code> for accurate timing. Record ms per sample. <em>This 3-row table goes directly into your thesis results chapter.</em></li>
+            <li><strong>CUDA image normalization kernel</strong> — write a <code>__global__</code> kernel that normalizes pixel values: <code>output[idx] = (input[idx] / 255.0f)</code>. Launch with enough blocks/threads to cover a 224×224 image. Compare execution time vs <code>img / 255.0</code> in NumPy on CPU.</li>
+            <li><strong>FP16 training experiment</strong> — wrap your training loop with <code>torch.cuda.amp.GradScaler()</code> + <code>autocast()</code>. Record time-per-epoch vs your FP32 baseline. Report the speedup multiplier.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pytorch.org/vision/stable/models/resnet.html" target="_blank">torchvision ResNet models</a>
+              <a class="rl" href="https://colab.research.google.com/notebooks/gpu.ipynb" target="_blank">Colab GPU guide</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 This week generates 3 thesis results</p>
+        <p>(1) Custom CNN vs ResNet18 accuracy comparison. (2) CPU / T4 / A100 inference latency table. (3) FP32 vs FP16 training speedup ratio. <strong>Commit all raw numbers to <code>results/benchmarks.csv</code> on GitHub immediately after running each experiment.</strong> These are the first entries in your results chapter — generated months before you write it.</p>
+      </div>
+    </div>
+
+    <!-- W10-11 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-t">W10–11</span>Prototype sprint</span>
+        <span class="wk-dates">Sep 1 – Sep 14</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">🔨 What to build</p>
+          <ul class="dl">
+            <li><strong>Unified <code>pipeline.py</code></strong> — single entrypoint: <code>detect(input_path_or_row)</code> → routes to CV branch (binary file) or network branch (CSV row) → returns <code>{'label': str, 'confidence': float, 'inference_ms': float, 'branch': str}</code></li>
+            <li><strong>CV branch: <code>BinaryVisualizer</code></strong> — reads raw bytes, reshapes to <code>(-1, 256)</code>, resizes to <code>224×224</code> with <code>cv2.resize</code>, normalizes to <code>[0,1]</code>, converts to 3-channel tensor for ResNet18 input</li>
+            <li><strong>Network branch: <code>NetworkPreprocessor</code></strong> — loads your saved <code>LabelEncoder</code> and <code>MinMaxScaler</code>, transforms a new NSL-KDD feature row, runs through your trained Random Forest or MLP, returns prediction</li>
+            <li><strong>GPU inference path</strong> — <code>model.to('cuda')</code> on startup, <code>torch.no_grad()</code> context for inference, <code>torch.cuda.synchronize()</code> before stopping the timer for accurate GPU timing</li>
+          </ul>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">📁 GitHub repo structure</p>
+          <ul class="dl">
+            <li><code>README.md</code> — project description, architecture diagram image, benchmark table (formatted markdown), dataset download instructions, how to run</li>
+            <li><code>pipeline.py</code> — the unified detection interface</li>
+            <li><code>models/</code> — <code>resnet18_malimg.pt</code>, <code>rf_nslkdd.pkl</code>, <code>mlp_nslkdd.pt</code>, saved scalers/encoders</li>
+            <li><code>notebooks/</code> — W6 RF training, W8 CNN training, W9 ResNet fine-tune, all with output cells showing results</li>
+            <li><code>results/</code> — <code>benchmarks.csv</code>, <code>confusion_matrix_malimg.png</code>, <code>feature_importance.png</code>, <code>loss_curves.png</code></li>
+            <li><code>data/</code> — only download scripts, no raw data committed (add <code>*.txt</code> and <code>*.csv</code> to <code>.gitignore</code>)</li>
+            <li><em>Commit every day. Even small fixes. The commit history is evidence of sustained work over time.</em></li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax" target="_blank">GitHub README formatting</a>
+              <a class="rl" href="https://github.com/othneildrew/Best-README-Template" target="_blank">README template</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Scope control — critical</p>
+        <p>These two weeks have <strong>zero new study topics</strong>. If you find yourself wanting to add a new architecture or try a new dataset — write it in a <code>FUTURE_WORK.md</code> file and continue building. <strong>A working pipeline with 85% accuracy beats an incomplete pipeline with 95% accuracy every time.</strong> You cannot demonstrate something that doesn't run. A supervisor will not be impressed by an ambitious architecture that crashes.</p>
+      </div>
+    </div>
+
+    <!-- W12-13 -->
+    <div class="week">
+      <div class="wk-hdr">
+        <span class="wk-label"><span class="wnum wn-t">W12–13</span>Refinement + supervisor package</span>
+        <span class="wk-dates">Sep 15 – Sep 30</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">🔧 Technical refinement</p>
+          <ul class="dl">
+            <li><strong>Hyperparameter tuning</strong> — for ResNet18: try learning rates <code>[1e-3, 1e-4, 5e-5]</code> and batch sizes <code>[32, 64]</code>. For RF: try <code>n_estimators</code> in <code>[100, 200, 500]</code>. Record all results in a table. Pick the best configuration and explain why.</li>
+            <li><strong>Class imbalance handling</strong> — add <code>WeightedRandomSampler</code> to your DataLoader to oversample rare malware families in MalImg. Measure F1 improvement on underrepresented classes.</li>
+            <li><strong>FPGA architecture note</strong> — add a README section: "Planned FPGA deployment: Pynq-Z2 target, Vitis AI INT8 quantization, estimated Phase 4 (Oct 2026)." This signals forward-thinking to a supervisor.</li>
+            <li><strong>Literature reading</strong> — read 3–5 papers: Nataraj et al. MalImg original, one recent NSL-KDD deep learning IDS paper (search IEEE Xplore: "NSL-KDD deep learning 2023"), one FPGA edge AI for security paper. Note: problem / method / results / limitation / gap relative to yours.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=NSL-KDD+deep+learning" target="_blank">IEEE Xplore — NSL-KDD search</a>
+              <a class="rl" href="https://arxiv.org/search/?searchtype=all&query=malware+classification+CNN+2023" target="_blank">arXiv — malware CNN 2023</a>
+              <a class="rl" href="https://app.diagrams.net" target="_blank">draw.io (architecture diagrams)</a>
+              <a class="rl" href="https://www.connectedpapers.com" target="_blank">Connected Papers (citation graph)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">📬 Supervisor approach package</p>
+          <ul class="dl">
+            <li><strong>1-page project summary (PDF)</strong> — Problem (2 sentences), Gap (1 sentence), Approach (3 sentences covering CV + GPU + FPGA plan), Current Results (benchmark table inline), Next Steps (FPGA deployment Oct 2026). No more than 1 page — supervisors don't read longer summaries from unknown students.</li>
+            <li><strong>Architecture diagram (draw.io PDF)</strong> — data sources → CV preprocessing → model inference → output → planned FPGA edge node. Label every arrow and box. Export as both PNG (for README) and PDF (for the summary).</li>
+            <li><strong>GitHub repo</strong> — clean README with the benchmark table, all notebooks runnable, <code>requirements.txt</code> installs cleanly with <code>pip install -r requirements.txt</code>. Test this on a fresh Colab notebook.</li>
+            <li><strong>Email to Dr. Bouyakoub</strong> — subject: "M2 thesis feedback request — GPU/FPGA security AI prototype". Body: 3 paragraphs maximum. Paragraph 1: who you are (his former bachelor's student). Paragraph 2: what you built (link to GitHub). Paragraph 3: specific ask (20 minutes of feedback). Attach the 1-page PDF. Send Sep 22, follow up once on Sep 30 if no reply.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://scholar.google.com/scholar?q=Bouyakoub+IoT+edge" target="_blank">Dr. Bouyakoub — Google Scholar</a>
+              <a class="rl" href="https://sites.google.com/site/bouyakoubfaycal" target="_blank">Dr. Bouyakoub — personal site</a>
+              <a class="rl" href="https://scholar.google.com/scholar?q=Zeraoulia+MAC+spoofing+machine+learning" target="_blank">Dr. Zeraoulia — Google Scholar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 Supervisor contact timeline</p>
+        <p><strong>Sep 15</strong> — finalize who you're approaching, read their 2 most recent publications. <strong>Sep 22</strong> — send the email to Dr. Bouyakoub with the 1-page PDF attached. If pursuing Qareeb in parallel, reach out to their AI lead on LinkedIn the same day. <strong>Sep 30</strong> — follow up once if no reply. One follow-up is professional; more than one is pressure.</p>
+      </div>
+
+      <div class="ms ms-t">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 3 milestone — Sep 30</p>
+          <p class="ms-txt">Working GPU-accelerated CV + ML pipeline detecting threats in both network traffic data (NSL-KDD) and malware binary images (MalImg). Three-model comparison documented with real F1 scores. CPU vs GPU benchmark table with real timings. Architecture diagram. Clean public GitHub repo. 1-page supervisor summary PDF. Supervisor contacted.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /p3-body -->
+</div><!-- /phase p3 -->
+
+<!-- MVP checklist -->
+<div class="mvp">
+  <div class="mvp-hdr">
+    <span style="font-size:16px">◈</span>
+    <span class="mvp-hdr-txt">Minimum viable prototype — what you need by Sep 30</span>
+  </div>
+  <div class="mvp-body">
+    <ol class="mvp-steps">
+      <li>Accepts <em>NSL-KDD network records</em> (CSV row) or <em>MalImg binary files</em> (.exe bytes) as input through a unified <code>detect()</code> interface</li>
+      <li>CV preprocessing step: binary bytes → grayscale image → 224×224 tensor, or network features → encoded/scaled array. Both paths fully implemented.</li>
+      <li>Inference through trained models: ResNet18 fine-tuned on MalImg (CV branch) + Random Forest or MLP on NSL-KDD (network branch)</li>
+      <li>Returns structured output: <em>label + confidence score + inference time in ms + which branch was used</em></li>
+      <li>GPU inference path with timing comparison against CPU baseline — at minimum a 3-column table (CPU / T4 / A100) in the README</li>
+      <li>Public GitHub repo with working README, runnable notebooks, requirements.txt, and results/ folder containing all generated figures</li>
+      <li>Architecture diagram (draw.io PDF) showing full pipeline including the planned FPGA edge deployment stage in Phase 4</li>
+    </ol>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+function tog(id) {
+  const b = document.getElementById(id+'-b');
+  const c = document.getElementById(id+'-c');
+  const open = b.classList.contains('open');
+  b.classList.toggle('open', !open);
+  c.textContent = open ? '▾' : '▴';
+}
+function openP(id) {
+  const b = document.getElementById(id+'-b');
+  const c = document.getElementById(id+'-c');
+  b.classList.add('open');
+  c.textContent = '▴';
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const s = d.scrollTop || document.body.scrollTop;
+  const h = d.scrollHeight - d.clientHeight;
+  document.getElementById('prog').style.width = (s/h*100)+'%';
+});
+</script>
+</body>
+</html>

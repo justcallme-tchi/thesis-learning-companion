@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thesis Roadmap — Phases 4–7 Deep Dive</title>
+<style>
+  :root {
+    --bg: #0f1117; --bg2: #161b27; --bg3: #1e2535;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0; --text2: #9095a8; --text3: #565c70;
+    --blue: #378ADD; --blue-bg: rgba(55,138,221,0.10); --blue-text: #7bb8f0;
+    --purple: #7F77DD; --purple-bg: rgba(127,119,221,0.10); --purple-text: #b0aaee;
+    --teal: #1D9E75; --teal-bg: rgba(29,158,117,0.10); --teal-text: #5ecba4;
+    --amber: #BA7517; --amber-bg: rgba(186,117,23,0.10); --amber-text: #e8a84a;
+    --coral: #D85A30; --coral-bg: rgba(216,90,48,0.10); --coral-text: #f09070;
+    --pink: #D4537E; --pink-bg: rgba(212,83,126,0.10); --pink-text: #f097bc;
+    --green: #639922; --green-bg: rgba(99,153,34,0.10); --green-text: #96cc4a;
+    --r: 10px; --rsm: 6px;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.65; }
+  .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.75rem 5rem; }
+
+  #prog { position: fixed; top: 0; left: 0; height: 2px; background: var(--pink); z-index: 200; width: 0; transition: width .1s; }
+
+  /* Header */
+  .doc-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; font-family: var(--mono); }
+  .doc-title { font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 5px; letter-spacing: -.02em; }
+  .doc-sub { font-size: 14px; color: var(--text2); }
+
+  /* Connector */
+  .connector { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1.75rem; padding: 12px 16px; border-radius: var(--rsm); border: 1px solid var(--teal-bg); background: var(--teal-bg); }
+  .con-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
+  .connector p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .connector p strong { color: var(--teal-text); font-weight: 600; }
+
+  /* Timeline */
+  .tl { display: flex; gap: 3px; margin-bottom: 7px; overflow: hidden; border-radius: 4px; }
+  .tl-s { height: 7px; cursor: pointer; opacity: .75; transition: opacity .15s; }
+  .tl-s:hover { opacity: 1; }
+  .tl-s:first-child { border-radius: 3px 0 0 3px; }
+  .tl-s:last-child  { border-radius: 0 3px 3px 0; }
+  .tl-lbls { display: flex; justify-content: space-between; margin-bottom: 1.75rem; }
+  .tl-lbl { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  /* Legend */
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 1.75rem; padding: 11px 15px; background: var(--bg2); border-radius: var(--rsm); border: 1px solid var(--border); }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .leg-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Phase */
+  .phase { margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; background: var(--bg2); }
+  .ph { padding: 15px 20px; display: flex; align-items: center; gap: 13px; cursor: pointer; user-select: none; transition: background .15s; }
+  .ph:hover { background: var(--bg3); }
+  .ph-stripe { width: 3px; height: 38px; border-radius: 2px; flex-shrink: 0; }
+  .ph-info { flex: 1; min-width: 0; }
+  .ph-name { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .ph-meta { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .ph-badge { font-size: 11px; padding: 4px 11px; border-radius: 20px; font-family: var(--mono); white-space: nowrap; font-weight: 600; flex-shrink: 0; }
+  .ph-chev { font-size: 15px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+  .ph-body { display: none; border-top: 1px solid var(--border); }
+  .ph-body.open { display: block; }
+
+  /* Month block */
+  .mblock { padding: 20px 22px; border-bottom: 1px solid var(--border); }
+  .mblock:last-child { border-bottom: none; }
+  .mhdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+  .mlabel { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-family: var(--mono); }
+  .mpill { font-size: 10px; padding: 3px 9px; border-radius: 20px; font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+
+  /* Grid */
+  .dgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px; }
+  @media (max-width: 680px) { .dgrid { grid-template-columns: 1fr; } }
+  .dcol { background: var(--bg3); border-radius: var(--rsm); padding: 14px 16px; border: 1px solid var(--border); }
+  .dcol-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 11px; font-family: var(--mono); }
+
+  /* Deep list */
+  .dl { list-style: none; padding: 0; margin: 0; }
+  .dl li { font-size: 14px; color: var(--text2); padding: 6px 0 6px 18px; border-bottom: 1px solid var(--border); line-height: 1.6; position: relative; }
+  .dl li:last-child { border-bottom: none; padding-bottom: 0; }
+  .dl li::before { content: '›'; color: var(--text3); position: absolute; left: 0; top: 7px; font-size: 15px; font-weight: 700; }
+  .dl li strong { color: var(--text); font-weight: 600; }
+  .dl li em { font-style: normal; color: var(--teal-text); font-weight: 500; }
+  .dl li code { font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; color: var(--amber-text); word-break: break-all; }
+
+  /* Resources */
+  .res { margin-top: 12px; padding: 10px 13px; background: rgba(255,255,255,0.025); border-radius: var(--rsm); border: 1px solid var(--border); }
+  .res-title { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 7px; font-family: var(--mono); }
+  .res-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  .rl { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--blue-text); text-decoration: none; padding: 4px 9px; background: var(--blue-bg); border-radius: 4px; line-height: 1.3; }
+  .rl:hover { opacity: .8; }
+  .rl::before { content: '↗'; font-size: 10px; opacity: .7; }
+
+  /* Notes */
+  .note { margin-top: 13px; padding: 12px 16px; border-radius: 0 var(--rsm) var(--rsm) 0; }
+  .note-coral { border-left: 2px solid var(--coral); background: var(--coral-bg); }
+  .note-blue  { border-left: 2px solid var(--blue);  background: var(--blue-bg);  }
+  .note-pink  { border-left: 2px solid var(--pink);  background: var(--pink-bg);  }
+  .note-lbl { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; font-family: var(--mono); font-weight: 700; }
+  .note-coral .note-lbl { color: var(--coral-text); }
+  .note-blue  .note-lbl { color: var(--blue-text);  }
+  .note-pink  .note-lbl { color: var(--pink-text);  }
+  .note p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .note p strong { font-weight: 600; }
+  .note-coral p strong { color: var(--coral-text); }
+  .note-blue  p strong { color: var(--blue-text);  }
+  .note-pink  p strong { color: var(--pink-text);  }
+
+  /* Milestone */
+  .ms { margin: 16px 0 4px; padding: 14px 18px; border-radius: var(--rsm); display: flex; gap: 13px; align-items: flex-start; }
+  .ms-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .ms-lbl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; font-family: var(--mono); font-weight: 700; }
+  .ms-txt { font-size: 14px; line-height: 1.6; }
+  .ms-p { background: var(--purple-bg); } .ms-p .ms-lbl, .ms-p .ms-txt { color: var(--purple-text); }
+  .ms-g { background: var(--green-bg);  } .ms-g .ms-lbl, .ms-g .ms-txt { color: var(--green-text);  }
+  .ms-c { background: var(--coral-bg);  } .ms-c .ms-lbl, .ms-c .ms-txt { color: var(--coral-text);  }
+  .ms-k { background: var(--pink-bg);   } .ms-k .ms-lbl, .ms-k .ms-txt { color: var(--pink-text);   }
+
+  /* Phase stripe/badge colors */
+  .p4-s { background: var(--purple); } .p4-bd { background: var(--purple-bg); color: var(--purple-text); }
+  .p4-ml { color: var(--purple-text); } .p4-pill { background: var(--purple-bg); color: var(--purple-text); }
+  .p5-s { background: var(--green);  } .p5-bd { background: var(--green-bg);  color: var(--green-text);  }
+  .p5-pill { background: var(--green-bg); color: var(--green-text); }
+  .p6-s { background: var(--coral);  } .p6-bd { background: var(--coral-bg);  color: var(--coral-text);  }
+  .p6-pill { background: var(--coral-bg); color: var(--coral-text); }
+  .p7-s { background: var(--pink);   } .p7-bd { background: var(--pink-bg);   color: var(--pink-text);   }
+  .p7-pill { background: var(--pink-bg); color: var(--pink-text); }
+
+  /* Benchmark table */
+  .btbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 11px; }
+  .btbl th { text-align: left; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); font-family: var(--mono); padding: 6px 10px; border-bottom: 1px solid var(--border2); font-weight: 600; }
+  .btbl td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text2); font-size: 13px; }
+  .btbl tr:last-child td { border-bottom: none; }
+  .btbl td.hi { color: var(--teal-text); font-weight: 600; font-family: var(--mono); }
+  .btbl td.dim { color: var(--text3); font-family: var(--mono); }
+  .btbl td code { font-family: var(--mono); font-size: 11px; color: var(--amber-text); }
+
+  /* Slide list */
+  .slide-list { list-style: none; padding: 0; counter-reset: sl; }
+  .slide-list li { counter-increment: sl; display: flex; gap: 12px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .slide-list li:last-child { border-bottom: none; }
+  .slide-list li::before { content: counter(sl); min-width: 22px; height: 22px; background: var(--pink-bg); color: var(--pink-text); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; font-family: var(--mono); flex-shrink: 0; margin-top: 1px; }
+  .slide-list li strong { color: var(--text); font-weight: 600; }
+
+  /* Q&A */
+  .qa { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rsm); padding: 13px 15px; margin-bottom: 9px; }
+  .qa-q { font-size: 13px; color: var(--coral-text); margin-bottom: 7px; font-weight: 600; line-height: 1.5; }
+  .qa-q::before { content: 'Q  '; font-family: var(--mono); font-size: 10px; }
+  .qa-a { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .qa-a::before { content: 'A  '; font-family: var(--mono); font-size: 10px; color: var(--teal-text); font-weight: 700; }
+
+  /* Chapter cards */
+  .ch-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 11px; }
+  @media (max-width: 580px) { .ch-cards { grid-template-columns: 1fr; } }
+  .ch-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rsm); padding: 13px 15px; }
+  .ch-num { font-size: 10px; font-family: var(--mono); color: var(--pink-text); margin-bottom: 4px; font-weight: 700; }
+  .ch-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .ch-items { list-style: none; padding: 0; }
+  .ch-items li { font-size: 12px; color: var(--text2); padding: 3px 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+  .ch-items li:last-child { border-bottom: none; padding-bottom: 0; }
+
+  /* Defense checklist grid */
+  .dc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 8px; margin-top: 12px; }
+  .dc-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rsm); padding: 11px 13px; }
+  .dc-lbl { font-size: 10px; color: var(--text3); margin-bottom: 3px; font-family: var(--mono); }
+  .dc-val { font-size: 13px; color: var(--text); font-weight: 600; }
+
+  /* Tracker */
+  .tracker { border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 1.5rem; background: var(--bg2); }
+  .tracker-hdr { padding: 12px 18px; font-size: 14px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); background: var(--bg3); }
+  .tracker-row { display: flex; align-items: center; padding: 9px 18px; border-bottom: 1px solid var(--border); gap: 14px; }
+  .tracker-row:last-child { border-bottom: none; }
+  .tracker-ch { font-size: 14px; color: var(--text); flex: 1; }
+  .tracker-when { font-size: 11px; color: var(--text3); min-width: 100px; text-align: right; font-family: var(--mono); }
+  .tracker-bw { width: 80px; height: 4px; background: var(--bg3); border-radius: 2px; }
+  .tracker-bf { height: 4px; border-radius: 2px; }
+
+  code { font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; color: var(--amber-text); }
+  a { color: var(--blue-text); }
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div class="page">
+
+  <div class="doc-header">
+    <p class="eyebrow">THESIS PREP · DETAILED BREAKDOWN</p>
+    <h1 class="doc-title">Phases 4 – 7 Deep Dive</h1>
+    <p class="doc-sub">October 2026 → June 2027 · Post-supervisor · Advanced skills, full prototype, writing & defense</p>
+  </div>
+
+  <div class="connector">
+    <div class="con-dot"></div>
+    <p><strong>Continuing from Phase 3 (Sep 30):</strong> Prototype running, GPU benchmark documented, GitHub repo clean, supervisor contacted. From here the work shifts from learning-first to building-first. Every new skill is applied directly to the prototype within the same month you study it.</p>
+  </div>
+
+  <div class="tl">
+    <div class="tl-s" style="background:var(--purple);flex:2" onclick="openP('p4')" title="Phase 4: Oct–Nov"></div>
+    <div class="tl-s" style="background:var(--green);flex:2"  onclick="openP('p5')" title="Phase 5: Dec–Jan"></div>
+    <div class="tl-s" style="background:var(--coral);flex:2"  onclick="openP('p6')" title="Phase 6: Feb–Mar"></div>
+    <div class="tl-s" style="background:var(--pink);flex:3"   onclick="openP('p7')" title="Phase 7: Apr–Jun"></div>
+  </div>
+  <div class="tl-lbls">
+    <span class="tl-lbl">Oct 2026</span>
+    <span class="tl-lbl">Dec 2026</span>
+    <span class="tl-lbl">Feb 2027</span>
+    <span class="tl-lbl">Apr 2027</span>
+    <span class="tl-lbl">Jun 2027</span>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>Cybersecurity</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--purple)"></div>ML / Deep learning</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--teal)"></div>Computer vision</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>GPU / CUDA / FPGA</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--coral)"></div>Prototype / Lab</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--pink)"></div>Thesis writing</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Edge AI</div>
+  </div>
+
+<!-- ═══════════════════════ PHASE 4 ═══════════════════════ -->
+<div class="phase" id="p4">
+  <div class="ph" onclick="tog('p4')">
+    <div class="ph-stripe p4-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 4 — Advanced CV + real-time systems + FPGA first deployment</p>
+      <p class="ph-meta">October – November 2026 · 2 months · Skills 9 + 10 + advanced GPU</p>
+    </div>
+    <span class="ph-badge p4-bd">ADV-CV · FPGA · REAL-TIME</span>
+    <span class="ph-chev" id="p4-c">▾</span>
+  </div>
+  <div class="ph-body open" id="p4-b">
+
+    <!-- October -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel p4-ml">October 2026</span>
+        <span class="mpill p4-pill">YOLO upgrade + GPU deep + supervisor meeting</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>YOLO architecture</strong> — single-shot detection: divides image into S×S grid, each cell predicts B bounding boxes + class probabilities simultaneously. No separate region proposal step — that's why it's fast. Focus on YOLOv8 which has the cleanest PyTorch API.</li>
+            <li><strong>Adapting YOLO for security</strong> — your binary images aren't "natural" images with discrete objects. Reframe the task as classification over image regions: can YOLO detect structural zones (header region, code section, data section) in the binary visualization that correlate with malware family?</li>
+            <li><strong>Semantic segmentation</strong> — U-Net architecture: encoder (downsampling) + decoder (upsampling with skip connections). Can you segment anomalous byte regions in a binary visualization? Useful as future work even if you don't fully implement it.</li>
+            <li><strong>Temporal frame analysis</strong> — frame differencing: subtract consecutive network state snapshots to detect behavioral changes. Optical flow concept for tracking movement across frames. Relevant for simulating real-time streaming input.</li>
+            <li><strong>Tensor Cores</strong> — NVIDIA hardware units that accelerate matrix multiplication in FP16/BF16. <code>torch.backends.cudnn.benchmark = True</code> enables them automatically. How <code>torch.compile()</code> in PyTorch 2.x further accelerates this.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://docs.ultralytics.com/models/yolov8/" target="_blank">YOLOv8 docs (Ultralytics)</a>
+              <a class="rl" href="https://arxiv.org/abs/1506.02640" target="_blank">YOLO original paper (arXiv)</a>
+              <a class="rl" href="https://arxiv.org/abs/1505.04597" target="_blank">U-Net paper (arXiv)</a>
+              <a class="rl" href="https://developer.nvidia.com/tensor-cores" target="_blank">NVIDIA Tensor Cores explainer</a>
+              <a class="rl" href="https://pytorch.org/docs/stable/generated/torch.compile.html" target="_blank">torch.compile docs</a>
+              <a class="rl" href="https://learnopencv.com/optical-flow-in-opencv/" target="_blank">Optical flow (LearnOpenCV)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Prototype work</p>
+          <ul class="dl">
+            <li><strong>Upgrade MalImg pipeline to YOLOv8-cls</strong> — install <code>ultralytics</code>, run <code>yolo classify train model=yolov8s-cls.pt data=malimg_dataset epochs=30</code>. Compare top-1 accuracy and inference time vs your ResNet18 baseline from Phase 3.</li>
+            <li><strong>StreamSimulator class</strong> — write a Python class that loads MalImg samples one-by-one with a configurable delay (e.g. 100ms inter-arrival time), feeds each through your pipeline, logs <code>{'sample_id', 'label', 'confidence', 'inference_ms', 'timestamp'}</code> to a CSV. This simulates an edge sensor streaming binary snapshots.</li>
+            <li><strong>FP16 full-pipeline benchmark</strong> — wrap the entire inference loop (preprocessing + model forward + postprocessing) with <code>torch.cuda.amp.autocast()</code> on Colab A100. Add FP16 column to your benchmark table: <em>CPU · GPU FP32 · GPU FP16 · (FPGA next month)</em>.</li>
+            <li><strong>Supervisor meeting prep</strong> — print the benchmark table, prototype demo script, 1-page summary (updated with new results). Book the meeting for week 2 or 3 of October. Come with one specific question: "What should the exact research question wording be?"</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://github.com/ultralytics/ultralytics" target="_blank">Ultralytics GitHub</a>
+              <a class="rl" href="https://pytorch.org/docs/stable/amp.html" target="_blank">PyTorch AMP docs</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ First supervisor meeting — what to actually do</p>
+        <p>Show the prototype running live, share the benchmark table, then ask one specific question: <strong>"Given what I've built, what should the exact research question wording be?"</strong> Their answer directly shapes Chapter 1. Take notes during the meeting and paraphrase back to them at the end to confirm you understood. That one habit prevents months of miscommunication. Also ask: which IDS baselines they'd expect you to compare against — this saves you time in Phase 6.</p>
+      </div>
+    </div>
+
+    <!-- November -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel p4-ml">November 2026</span>
+        <span class="mpill p4-pill">Pynq-Z2 setup + FPGA first inference + literature review</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Vitis HLS basics</strong> — writing a C++ function with HLS pragmas: <code>#pragma HLS PIPELINE II=1</code> (pipeline every cycle), <code>#pragma HLS UNROLL factor=4</code> (unroll loops). Understanding the synthesis report: initiation interval (II), latency in clock cycles, resource utilization (LUT, DSP, BRAM).</li>
+            <li><strong>Pynq-Z2 architecture</strong> — Xilinx Zynq-7020: ARM Cortex-A9 CPU (PS) + FPGA fabric (PL) on the same chip. Python runs on the ARM side and controls FPGA overlays via MMIO and DMA. The DPU (Deep Processing Unit) is a prebuilt FPGA overlay for CNN inference.</li>
+            <li><strong>AXI DMA transfers</strong> — data moves CPU→FPGA via AXI DMA controller. Transfer latency must be measured and included in your end-to-end benchmark — otherwise you're only measuring FPGA compute time, not the true deployment latency.</li>
+            <li><strong>Autoencoder for anomaly detection</strong> — encoder compresses input to a bottleneck latent vector, decoder reconstructs. Train on Normal NSL-KDD traffic only. At test time: high reconstruction error = anomaly. Detects zero-day attacks that supervised classifiers miss because they've never seen the pattern.</li>
+            <li><strong>Kafka architecture concept</strong> — producers write events to topics, consumers read from topics, topics are partitioned for parallel processing. Understand why this is the standard for real-time security event pipelines at scale, even if you don't implement it.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pynq.readthedocs.io/en/latest/" target="_blank">Pynq official docs</a>
+              <a class="rl" href="https://docs.amd.com/r/en-US/ug902-vivado-high-level-synthesis" target="_blank">Vitis HLS UG902 (AMD)</a>
+              <a class="rl" href="https://xilinx.github.io/Vitis-AI/" target="_blank">Vitis AI (model deployment)</a>
+              <a class="rl" href="https://github.com/Xilinx/PYNQ-DPU" target="_blank">PYNQ-DPU GitHub</a>
+              <a class="rl" href="https://kafka.apache.org/documentation/" target="_blank">Apache Kafka docs</a>
+              <a class="rl" href="https://www.semanticscholar.org" target="_blank">Semantic Scholar (paper search)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Prototype + literature</p>
+          <ul class="dl">
+            <li><strong>Pynq-Z2 unboxing + setup</strong> — flash Pynq 3.0 image to microSD (16GB Class 10), connect to laptop via USB-UART, open Jupyter interface at <code>192.168.2.99</code> in browser, run the DMA loopback notebook to confirm the board is functional before touching anything else.</li>
+            <li><strong>Deploy PYNQ-DPU overlay</strong> — clone the PYNQ-DPU repo, install with <code>pip install pynq-dpu</code>, quantize your YOLOv8 or ResNet18 to INT8 with <code>vai_q_pytorch</code>, compile for the DPU target with <code>vai_c_xir</code>, run inference on 100 MalImg samples from Python on the ARM side.</li>
+            <li><strong>Complete three-way benchmark</strong> — CPU (laptop ARM emulation) · GPU (Colab A100 FP16) · FPGA (Pynq-Z2 DPU INT8). For each: inference ms per sample, throughput (samples/sec), include DMA transfer time in FPGA measurement. <em>This is Figure 1 of your thesis results chapter.</em></li>
+            <li><strong>Literature review — 10 papers minimum</strong> — create <code>literature/papers.md</code> in GitHub. Use NotebookLM to cross-query PDFs. Target: MalImg original, 2 NSL-KDD ML IDS papers, 2 FPGA edge AI papers, 1 real-time IDS, 1 CNN malware classification survey, 1 autoencoder anomaly detection paper.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Research databases</p>
+            <div class="res-grid">
+              <a class="rl" href="https://ieeexplore.ieee.org" target="_blank">IEEE Xplore</a>
+              <a class="rl" href="https://arxiv.org/search/?searchtype=all&query=FPGA+edge+AI+security" target="_blank">arXiv FPGA edge AI</a>
+              <a class="rl" href="https://notebooklm.google.com" target="_blank">NotebookLM (PDF Q&A)</a>
+              <a class="rl" href="https://www.connectedpapers.com" target="_blank">Connected Papers</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dcol" style="margin-top:13px">
+        <p class="dcol-title">📊 Target three-way benchmark table (fill in real numbers)</p>
+        <table class="btbl">
+          <thead>
+            <tr><th>Platform</th><th>Hardware</th><th>Precision</th><th>Latency (ms/sample)</th><th>Throughput (samples/s)</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CPU baseline</td><td class="dim">Intel UHD 620</td><td class="dim">FP32</td><td class="dim">TBD</td><td class="dim">TBD</td><td class="dim">No acceleration</td></tr>
+            <tr><td>GPU cloud</td><td class="dim">Colab A100</td><td class="dim">FP16</td><td class="hi">TBD</td><td class="hi">TBD</td><td class="dim">Training + cloud inference</td></tr>
+            <tr><td>FPGA edge</td><td class="dim">Pynq-Z2 DPU</td><td class="dim">INT8</td><td class="hi">TBD</td><td class="hi">TBD</td><td class="dim">Edge, no cloud needed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note note-blue">
+        <p class="note-lbl">💡 Why FPGA latency vs ARM CPU — not vs A100</p>
+        <p>The Pynq-Z2 DPU won't beat an A100 in absolute throughput — that's not the comparison that matters. The relevant comparison is <strong>FPGA DPU vs the ARM Cortex-A9 on the same board running the same model</strong>. The DPU will be 5–10× faster than the ARM CPU at the same power budget. That's your result: hardware-level acceleration is viable at the edge without cloud dependency. Frame it exactly this way in your thesis.</p>
+      </div>
+
+      <div class="ms ms-p">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 4 milestone — Nov 30</p>
+          <p class="ms-txt">YOLOv8-upgraded CV pipeline running on GPU. Complete three-way benchmark (CPU · GPU · FPGA) with real measured numbers. Pynq-Z2 functional with INT8 inference overlay. Literature review at 10+ papers with structured notes in GitHub. Supervisor meeting completed, research question confirmed.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ PHASE 5 ═══════════════════════ -->
+<div class="phase" id="p5">
+  <div class="ph" onclick="tog('p5')">
+    <div class="ph-stripe p5-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 5 — Edge AI + threat detection algorithms + adversarial basics</p>
+      <p class="ph-meta">December 2026 – January 2027 · 2 months · Skills 13 + 14 + 15 (light)</p>
+    </div>
+    <span class="ph-badge p5-bd">EDGE AI · ENSEMBLE · ADV-ML</span>
+    <span class="ph-chev" id="p5-c">▾</span>
+  </div>
+  <div class="ph-body" id="p5-b">
+
+    <!-- December -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--green-text)">December 2026</span>
+        <span class="mpill p5-pill">INT8 quantization + autoencoder + Chapter 1 draft</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Post-training quantization (PTQ)</strong> — calibrate FP32 weights to INT8 range using a calibration dataset (a few hundred samples). Typical accuracy loss: 1–3%. Model size halved, inference ~2× faster on INT8-capable hardware. <code>torch.quantization.quantize_dynamic</code> is the simplest entry point.</li>
+            <li><strong>Quantization-aware training (QAT)</strong> — simulates INT8 quantization during FP32 training by inserting fake quantization nodes. Recovers accuracy lost in PTQ at the cost of longer training. Use when PTQ accuracy drop is unacceptable.</li>
+            <li><strong>Model pruning</strong> — unstructured (zero out individual weights, hard to accelerate) vs structured (remove entire channels/filters, directly reduces FLOPS). For FPGA deployment, structured pruning is more useful because it reduces the DPU workload proportionally.</li>
+            <li><strong>IoT edge constraints</strong> — typical embedded security sensor: ~256MB RAM, ARM Cortex-A53 or similar, 1–3W power budget, no active cooling, intermittent connectivity. Your Pynq-Z2 DPU solution addresses all of these.</li>
+            <li><strong>Autoencoder reconstruction error</strong> — train encoder-decoder on Normal NSL-KDD traffic only. MSE reconstruction error on Normal samples clusters near zero; attack traffic produces high error. Choose a threshold (e.g. 95th percentile of Normal validation error) to classify as anomaly.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://pytorch.org/docs/stable/quantization.html" target="_blank">PyTorch quantization docs</a>
+              <a class="rl" href="https://pytorch.org/tutorials/advanced/static_quant_tutorial.html" target="_blank">PyTorch PTQ tutorial</a>
+              <a class="rl" href="https://pytorch.org/tutorials/intermediate/pruning_tutorial.html" target="_blank">PyTorch pruning tutorial</a>
+              <a class="rl" href="https://arxiv.org/abs/1506.02626" target="_blank">Autoencoder anomaly detection paper</a>
+              <a class="rl" href="https://www.tensorflow.org/model_optimization" target="_blank">TF Model Optimization guide</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Prototype + writing</p>
+          <ul class="dl">
+            <li><strong>Quantize your model (INT8 PTQ)</strong> — use <code>torch.quantization.quantize_dynamic(model, {nn.Linear, nn.Conv2d}, dtype=torch.qint8)</code>. Measure: model file size before/after, inference time before/after, F1 score before/after. Create a 3-row table: FP32 vs INT8 PTQ vs INT8 QAT (if time permits). <em>This table goes in Chapter 4.</em></li>
+            <li><strong>Deploy quantized model to Pynq-Z2</strong> — recompile with Vitis AI compiler post-quantization, re-run the FPGA benchmark. Add "INT8 quantized" row to your three-way benchmark table — now it's a 4-row table.</li>
+            <li><strong>Autoencoder on NSL-KDD</strong> — train <code>AutoEncoder(input_dim=41, hidden=[32,16,8,16,32])</code> on Normal traffic rows only. Plot reconstruction error distribution for Normal vs DoS vs Probe samples. The separation between Normal and attack error distributions is a thesis figure.</li>
+            <li><strong>Chapter 1 — first draft in Overleaf</strong> — Section 1.1 Context (3 paragraphs: threat landscape, edge deployment challenge, CV+GPU+FPGA opportunity), Section 1.2 Problem Statement (the specific gap), Section 1.3 Contributions (3 bullet points), Section 1.4 Structure (one sentence per chapter). Target: 4–6 pages.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Writing tools</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.overleaf.com" target="_blank">Overleaf (LaTeX editor)</a>
+              <a class="rl" href="https://www.zotero.org" target="_blank">Zotero (reference manager)</a>
+              <a class="rl" href="https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes" target="_blank">LaTeX 30-min guide</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ December exam pressure — minimum viable commitment</p>
+        <p>If exams compress your time severely, protect two things above everything else: <strong>(1) the autoencoder experiment</strong> — it adds a second detection method and generates a figure, and <strong>(2) at least 2 pages of Chapter 1 in Overleaf</strong> — even rough bullet-point notes count. Don't let December go entirely dark. Starting Chapter 1 now, even imperfectly, is the single biggest protection against April panic.</p>
+      </div>
+      <div class="note note-pink">
+        <p class="note-lbl">✍ Chapter 1 section guide</p>
+        <p><strong>1.1 Context:</strong> real-time threat detection is critical infrastructure, existing solutions require cloud/data-center hardware, edge deployment is the emerging need in IoT security. <strong>1.2 Problem:</strong> GPU-trained deep learning models are too memory- and power-intensive for direct edge deployment; no existing solution bridges GPU training → FPGA edge inference using visual threat detection specifically. <strong>1.3 Contributions:</strong> (1) CV-based pipeline, (2) GPU training methodology, (3) FPGA deployment + three-way benchmark. <strong>1.4 Structure:</strong> one sentence per chapter.</p>
+      </div>
+    </div>
+
+    <!-- January -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--green-text)">January 2027</span>
+        <span class="mpill p5-pill">Ensemble + adversarial + Chapter 2 draft</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Ensemble methods for security</strong> — soft voting: average the class probability outputs of CNN and Isolation Forest, take the argmax. Why combining a visual detector (CNN) with a statistical detector (IsolationForest) catches different attack types — they fail on complementary samples.</li>
+            <li><strong>FGSM adversarial attack</strong> — Fast Gradient Sign Method: <code>x_adv = x + ε * sign(∇_x L(model(x), y))</code>. One line of PyTorch. Perturbs input in the direction that maximally increases the loss. Shows your model can be fooled — and you document that honestly rather than hiding it.</li>
+            <li><strong>Adversarial training defense</strong> — mix adversarial examples (generated at training time) into the normal training batch. Standard defense. Measure F1 on clean vs adversarial inputs before and after retraining.</li>
+            <li><strong>APT kill chain (Lockheed Martin)</strong> — 7 stages: Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command & Control, Actions on Objectives. Map your detection system to the stage it operates at: Delivery (malicious binary arrives) and Installation (binary executes).</li>
+            <li><strong>Federated learning concept</strong> — multiple edge nodes train locally, share gradient updates not raw data. Central server aggregates. Understand for your future work section: "A federated extension would allow distributed FPGA nodes to collectively improve detection without centralizing sensitive network data."</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://adversarial-robustness-toolbox.readthedocs.io" target="_blank">IBM ART library (adversarial)</a>
+              <a class="rl" href="https://arxiv.org/abs/1412.6572" target="_blank">FGSM paper (Goodfellow 2014)</a>
+              <a class="rl" href="https://attack.mitre.org/tactics/enterprise/" target="_blank">MITRE ATT&CK Enterprise</a>
+              <a class="rl" href="https://arxiv.org/abs/1602.05629" target="_blank">Federated learning paper (McMahan)</a>
+              <a class="rl" href="https://scikit-learn.org/stable/modules/ensemble.html" target="_blank">sklearn ensemble methods</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Prototype + writing</p>
+          <ul class="dl">
+            <li><strong>Ensemble detector</strong> — implement <code>EnsembleDetector</code>: takes CNN softmax probabilities (25-dim for MalImg) + IsolationForest anomaly score (1-dim for NSL-KDD), combines with weighted voting, outputs final label + confidence. Run full evaluation: does ensemble F1 beat either model alone?</li>
+            <li><strong>FGSM robustness test</strong> — generate adversarial MalImg examples at ε ∈ {0.01, 0.05, 0.1, 0.2}. Measure F1 at each level. Plot accuracy vs ε curve. <em>This is your honest limitations figure</em> — committees respect students who quantify their system's failure modes.</li>
+            <li><strong>Kill chain mapping diagram</strong> — draw.io: draw the 7 kill chain stages as horizontal arrows, annotate which stage your system detects threats at (Delivery, Installation). Mark stages your system doesn't cover (Reconnaissance, C2 evasion). This figure goes in Chapter 3.</li>
+            <li><strong>Chapter 2 — first draft</strong> — Related Work: organize 15–20 papers into 4 subsections: (1) ML-based IDS on NSL-KDD, (2) visual malware analysis + MalImg, (3) GPU-accelerated security ML, (4) FPGA edge AI for security. 2–3 sentences max per paper. End with a gap table: your thesis fills the row where all columns are ticked.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://app.diagrams.net" target="_blank">draw.io (free, browser-based)</a>
+              <a class="rl" href="https://scholar.google.com" target="_blank">Google Scholar</a>
+              <a class="rl" href="https://arxiv.org/search/?searchtype=all&query=FPGA+intrusion+detection" target="_blank">arXiv FPGA IDS search</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 The gap table in Chapter 2</p>
+        <p>Create a comparison table: rows = related papers, columns = key dimensions (uses CV? GPU-accelerated? FPGA deployed? Real-time? Combined network+malware?). Most papers tick 1–2 columns. <strong>Your thesis ticks all columns.</strong> That visual makes your novelty claim without needing to argue it in prose. It's the most persuasive page in your literature review and takes 30 minutes to build in LaTeX.</p>
+      </div>
+
+      <div class="ms ms-g">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 5 milestone — Jan 31</p>
+          <p class="ms-txt">Ensemble detector (CNN + IsolationForest) with F1 compared against single-model baselines. INT8 quantized model deployed on Pynq-Z2. FGSM adversarial robustness curve documented. Kill chain mapping diagram complete. Chapters 1 and 2 in first draft in Overleaf. Literature gap table with 15+ papers.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ PHASE 6 ═══════════════════════ -->
+<div class="phase" id="p6">
+  <div class="ph" onclick="tog('p6')">
+    <div class="ph-stripe p6-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 6 — System integration + performance optimization + results</p>
+      <p class="ph-meta">February – March 2027 · 2 months · Skill 16 + complete pipeline + Chapters 3 & 4</p>
+    </div>
+    <span class="ph-badge p6-bd">INTEGRATION · BENCHMARK · RESULTS</span>
+    <span class="ph-chev" id="p6-c">▾</span>
+  </div>
+  <div class="ph-body" id="p6-b">
+
+    <!-- February -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--coral-text)">February 2027</span>
+        <span class="mpill p6-pill">Full pipeline unification + profiling + Chapter 3</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>NVIDIA Nsight Systems</strong> — timeline profiler that shows GPU kernel execution, CUDA API calls, CPU-GPU data transfer gaps, and idle time. Run with <code>nsys profile python pipeline.py</code>. The timeline reveals where time actually goes — usually not the GPU compute itself but the data transfers and CPU overhead around it.</li>
+            <li><strong>NVIDIA Nsight Compute</strong> — kernel-level profiler: memory bandwidth utilization, SM occupancy, warp efficiency, compute throughput. For each bottleneck kernel identified by Nsight Systems, run Nsight Compute to understand the root cause.</li>
+            <li><strong>Pinned memory and async transfers</strong> — <code>tensor.pin_memory()</code> enables faster CPU→GPU transfer via DMA. <code>torch.cuda.Stream</code> allows overlapping data transfer with GPU compute — while GPU processes batch N, CPU prepares batch N+1. Near-free throughput improvement.</li>
+            <li><strong>FastAPI for ML serving</strong> — <code>@app.post('/detect')</code> endpoint, Pydantic input schema, <code>uvicorn</code> ASGI server. Why a REST API matters: it makes your prototype look like a deployable system, not a notebook. One <code>curl</code> command = live demo at your defense.</li>
+            <li><strong>Latency decomposition</strong> — measure each pipeline stage separately: data loading, preprocessing (CPU), H2D transfer, model forward pass (GPU), D2H transfer, postprocessing (CPU), JSON serialization. The bottleneck is almost never where you expect.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://developer.nvidia.com/nsight-systems" target="_blank">Nsight Systems download</a>
+              <a class="rl" href="https://developer.nvidia.com/nsight-compute" target="_blank">Nsight Compute download</a>
+              <a class="rl" href="https://fastapi.tiangolo.com" target="_blank">FastAPI docs</a>
+              <a class="rl" href="https://pytorch.org/tutorials/intermediate/pinmem_nonblock.html" target="_blank">PyTorch pinned memory guide</a>
+              <a class="rl" href="https://www.uvicorn.org" target="_blank">Uvicorn ASGI server</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Prototype + writing</p>
+          <ul class="dl">
+            <li><strong>Unify all modules into one class</strong> — <code>ThreatDetectionPipeline.__init__</code> loads all models and preprocessors; <code>.detect(input)</code> routes to CV branch or network branch, returns <code>{'label', 'confidence', 'inference_ms', 'branch'}</code>. One entrypoint. Clean API.</li>
+            <li><strong>Profile with Nsight Systems</strong> — run full pipeline on 1,000 samples. Screenshot the timeline. Identify the top 2 time wasters (usually: unnecessary H2D copies, synchronous preprocessing blocking GPU). Fix them. Document throughput before and after — even a 20% improvement is a reportable optimization result.</li>
+            <li><strong>FastAPI endpoint</strong> — <code>POST /detect</code> accepts JSON <code>{"input_type": "binary", "file_path": "sample.exe"}</code> or <code>{"input_type": "network", "features": [...]}</code>. Returns detection result JSON. Test: <code>curl -X POST http://localhost:8000/detect -H "Content-Type: application/json" -d '{"input_type":"binary","file_path":"calc.exe"}'</code>.</li>
+            <li><strong>Chapter 3 first draft</strong> — System architecture diagram (full draw.io figure as the chapter's main figure), dataset descriptions (NSL-KDD statistics + MalImg statistics), preprocessing pipeline per branch, model architectures (YOLOv8-cls + ensemble), FPGA deployment methodology (quantization → Vitis AI compile → DPU overlay), evaluation protocol.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://developer.nvidia.com/blog/cuda-pro-tip-the-fast-path-to-gpu-time/" target="_blank">NVIDIA GPU timing guide</a>
+              <a class="rl" href="https://app.diagrams.net" target="_blank">draw.io for architecture diagrams</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-blue">
+        <p class="note-lbl">💡 FastAPI matters for the defense demo</p>
+        <p>Instead of showing a Jupyter notebook (student project look), you open a terminal and run one <code>curl</code> command that returns a live JSON detection result. <strong>That looks like a real deployable system.</strong> The committee sees something that could actually run in production on an edge gateway. That perception shift is worth one afternoon of FastAPI work.</p>
+      </div>
+    </div>
+
+    <!-- March -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--coral-text)">March 2027</span>
+        <span class="mpill p6-pill">Final evaluation + baselines + Chapter 4 + LaTeX</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📖 Study — what to cover</p>
+          <ul class="dl">
+            <li><strong>Statistical significance</strong> — run every experiment 5 times, report mean ± standard deviation. A result that varies ±15% across runs is not a stable result. <code>numpy.mean()</code> and <code>numpy.std()</code> applied to your 5 F1 score measurements.</li>
+            <li><strong>95% confidence intervals</strong> — <code>scipy.stats.t.interval(0.95, df=n-1, loc=mean, scale=sem)</code>. Reporting "F1 = 0.924 ± 0.008 (95% CI)" is more credible than "F1 = 0.924". Shows you understand your results have uncertainty bounds.</li>
+            <li><strong>Baseline IDS systems</strong> — (1) Snort 3 (rule-based, the industry classic, freely available). (2) A published ML-based IDS on NSL-KDD — find one on IEEE Xplore from 2022–2024 with reported F1 scores you can directly compare against. (3) A published CNN classifier on MalImg — same. Using published numbers from peer-reviewed papers as baselines is academically valid.</li>
+            <li><strong>LaTeX thesis structure</strong> — <code>\documentclass[12pt]{report}</code>, <code>\chapter{}</code>, <code>\section{}</code>, figure with <code>\begin{figure}[h]\includegraphics[width=\textwidth]{fig.pdf}\caption{}\label{}\end{figure}</code>, table with <code>booktabs</code>, bibliography with <code>\addbibresource{refs.bib}</code> (Zotero exports this).</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.snort.org" target="_blank">Snort 3 (IDS baseline)</a>
+              <a class="rl" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html" target="_blank">scipy.stats.t (confidence intervals)</a>
+              <a class="rl" href="https://www.overleaf.com/learn/latex/Tables" target="_blank">LaTeX tables (Overleaf)</a>
+              <a class="rl" href="https://www.overleaf.com/learn/latex/Biblatex_bibliography_styles" target="_blank">BibLaTeX + Zotero guide</a>
+              <a class="rl" href="https://matplotlib.org/stable/gallery/statistics/errorbar_demo.html" target="_blank">Matplotlib error bars</a>
+              <a class="rl" href="https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=NSL-KDD+intrusion+detection+2023" target="_blank">IEEE NSL-KDD 2023 baseline search</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🔨 Final evaluation + writing</p>
+          <ul class="dl">
+            <li><strong>Run all experiments 5× each</strong> — NSL-KDD: precision/recall/F1/latency per class. MalImg: accuracy/F1/inference time. Three-way hardware benchmark: latency mean ± std. Record everything in <code>results/all_runs.csv</code>. These are your final reported numbers — don't change them after this point.</li>
+            <li><strong>Generate all thesis figures from code</strong> — confusion matrix (<code>seaborn.heatmap</code>), ROC curves (<code>sklearn.metrics.roc_curve</code>), F1 bar chart with error bars, latency comparison bar chart, loss curves, reconstruction error distribution, adversarial robustness curve. Every figure = one Python script saved to <code>results/figures/</code>. No screenshots allowed.</li>
+            <li><strong>Baseline comparison table</strong> — your system vs Snort vs ML baseline vs CNN baseline: F1 on NSL-KDD, accuracy on MalImg, inference latency. <em>If your numbers don't beat every baseline</em> — that's fine and explainable: Snort has hand-tuned domain-expert rules; your system generalizes to novel threats and runs at the edge. The comparison isn't "who wins" — it's "what are the tradeoffs."</em></li>
+            <li><strong>Chapter 4 first draft</strong> — Experimental Setup (hardware, software, datasets, splits), Evaluation Metrics (why F1 not accuracy), Results Tables + Figures, Analysis of Results (what the numbers mean, not just what they are), Comparison with Baselines, Limitations (honest: adversarial vulnerability, quantization accuracy loss, dataset generalizability).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Dr. Guerroumi "shorter path" question — your March answer</p>
+        <p>He will ask why you didn't take a simpler approach. Your answer: <strong>"The baselines I compare against represent the shorter paths — Snort is rule-based and deployable in an afternoon, the Random Forest baseline is a direct ML approach with minimal preprocessing. My system is more complex because it satisfies constraints those baselines cannot simultaneously meet: real-time visual detection, deployable on FPGA edge hardware, with no cloud dependency. The benchmark table demonstrates this tradeoff explicitly and shows each design choice has a measurable payoff."</strong> Have the table visible when you say this.</p>
+      </div>
+
+      <div class="ms ms-c">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Phase 6 milestone — Mar 31</p>
+          <p class="ms-txt">Complete integrated pipeline with FastAPI endpoint. All experiments run 5× with mean ± std reported. All thesis figures generated from code (no screenshots). Baseline comparison table complete with published IDS systems. Chapters 1–4 in first draft in Overleaf with proper LaTeX formatting. GitHub repo fully documented and public.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ PHASE 7 ═══════════════════════ -->
+<div class="phase" id="p7">
+  <div class="ph" onclick="tog('p7')">
+    <div class="ph-stripe p7-s"></div>
+    <div class="ph-info">
+      <p class="ph-name">Phase 7 — Thesis writing, publication & defense</p>
+      <p class="ph-meta">April – June 2027 · final stretch · Write · Submit paper · Defend</p>
+    </div>
+    <span class="ph-badge p7-bd">WRITE · PUBLISH · DEFEND</span>
+    <span class="ph-chev" id="p7-c">▾</span>
+  </div>
+  <div class="ph-body" id="p7-b">
+
+    <!-- April -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--pink-text)">April 2027</span>
+        <span class="mpill p7-pill">Chapter 5 + abstract + paper submission</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">✍ Writing tasks</p>
+          <ul class="dl">
+            <li><strong>Chapter 5 — Conclusion & Future Work</strong> — summarize your 3 contributions in 1 paragraph each (be specific: cite your F1 and latency numbers). Future work section: (1) federated learning extension for distributed FPGA nodes, (2) Vision Transformer backbone to replace YOLO, (3) cloud-hybrid deployment for mixed infrastructure, (4) adversarially robust retraining pipeline on-device.</li>
+            <li><strong>Abstract — write last</strong> — 250 words max: one sentence on the problem, one on the gap, three sentences on what you built, one sentence on the key quantitative result (cite your best F1 and latency numbers explicitly), one conclusion sentence. Every word earns its place. Don't start with "In this thesis..."</li>
+            <li><strong>Full thesis review pass with supervisor</strong> — send complete draft by April 10. Meet to discuss feedback within one week. Give yourself April 20–30 to incorporate changes. Second read-through by supervisor by April 28 for final sign-off on content (not formatting).</li>
+            <li><strong>Acknowledgements, ToC, list of figures</strong> — LaTeX generates ToC and figure list automatically once structure is correct. Run <code>pdflatex</code> twice for correct page numbers. Check all figure cross-references resolve.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">LaTeX resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.overleaf.com/learn/latex/Management_in_a_large_project" target="_blank">Overleaf multi-file project</a>
+              <a class="rl" href="https://www.overleaf.com/learn/latex/Hyperlinks" target="_blank">LaTeX hyperref (clickable refs)</a>
+              <a class="rl" href="https://ctan.org/pkg/booktabs" target="_blank">booktabs package (tables)</a>
+            </div>
+          </div>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">📄 Workshop paper submission</p>
+          <ul class="dl">
+            <li><strong>Target venue</strong> — IEEE S&P workshops (co-located with the main conference), USENIX Security workshops, or IEEE DCOSS workshop track on Edge AI Security. Workshop papers are 4–6 pages, peer-reviewed, and realistic for a master's student first paper.</li>
+            <li><strong>Paper structure</strong> — Abstract, Introduction, Related Work (condensed to ~1 page from Chapter 2), System Design (condensed Chapter 3), Experiments (your three-way benchmark as the centrepiece result), Conclusion. IEEE two-column format.</li>
+            <li><strong>Lead with your strongest claim</strong> — "We present an FPGA-deployed CV-based threat detection pipeline achieving [X]ms edge inference latency with [Y]% F1 on NSL-KDD, demonstrating viable real-time security at the edge without cloud dependency." Fill in real numbers.</li>
+            <li><strong>Even under review counts</strong> — at your defense you can say "this work has been submitted for peer review." If you receive reviewer comments before the defense, those comments will sharpen your answers to the committee. Win either way.</li>
+          </ul>
+          <div class="res">
+            <p class="res-title">Target venues</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.ieee-security.org/TC/SP2027/" target="_blank">IEEE S&P 2027 workshops</a>
+              <a class="rl" href="https://www.usenix.org/conferences/byname/108" target="_blank">USENIX Security workshops</a>
+              <a class="rl" href="https://arxiv.org/abs/2103.00065" target="_blank">How to write a systems paper (guide)</a>
+              <a class="rl" href="https://www.overleaf.com/gallery/tagged/ieee-official" target="_blank">IEEE LaTeX templates (Overleaf)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-pink">
+        <p class="note-lbl">✍ Abstract template — fill in your numbers</p>
+        <p>"Real-time cybersecurity threat detection at the network edge faces a fundamental constraint: accurate deep learning models require GPU-class hardware unavailable in constrained IoT environments. We address this gap with a pipeline that trains a computer vision-based threat detector on cloud GPU, then deploys a quantized model on a Pynq-Z2 FPGA for edge inference. Our system achieves <strong>[F1]%</strong> on NSL-KDD network intrusion data and <strong>[acc]%</strong> on MalImg malware classification. A three-platform benchmark demonstrates FPGA inference at <strong>[X]ms</strong> per sample — <strong>[N]×</strong> faster than ARM CPU baseline — with <strong>[Y]%</strong> accuracy retained after INT8 quantization, enabling real-time threat detection without cloud dependency."</p>
+      </div>
+    </div>
+
+    <!-- May -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--pink-text)">May 2027</span>
+        <span class="mpill p7-pill">Defense slide deck + Q&A prep + mock defense</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">🎤 Defense slide deck — 20 slides</p>
+          <ol class="slide-list">
+            <li><strong>Title</strong> — thesis title, name, supervisor, institution, date</li>
+            <li><strong>Motivation</strong> — one compelling statistic on edge security threats + one sentence on the deployment gap</li>
+            <li><strong>Problem statement</strong> — the specific gap: GPU-trained models can't directly run at the edge. One diagram.</li>
+            <li><strong>Contributions (3 bullets)</strong> — the committee reads this and knows immediately what to evaluate you on</li>
+            <li><strong>Related work gap table</strong> — your literature comparison table. 30 seconds. Let it speak visually.</li>
+            <li><strong>System architecture</strong> — your draw.io diagram. Walk through each component in 90 seconds max.</li>
+            <li><strong>Dataset: NSL-KDD</strong> — what it is, class distribution chart, why you chose it</li>
+            <li><strong>Dataset: MalImg</strong> — sample images from different malware families, why visual classification works</li>
+            <li><strong>CV preprocessing pipeline</strong> — binary bytes → grayscale PNG → normalized tensor. One figure, one sentence.</li>
+            <li><strong>Model architecture</strong> — YOLOv8-cls + ensemble design. Parameter count. Why these choices.</li>
+            <li><strong>FPGA deployment pipeline</strong> — quantization → Vitis AI compile → Pynq-Z2 DPU overlay. One diagram.</li>
+            <li><strong>NSL-KDD results</strong> — confusion matrix + F1 per class table. Your numbers vs baselines.</li>
+            <li><strong>MalImg results</strong> — accuracy per family, confusion matrix. Your numbers vs baselines.</li>
+            <li><strong>Three-way latency benchmark</strong> — the bar chart with error bars. Your headline result. Full slide.</li>
+            <li><strong>Quantization accuracy tradeoff</strong> — FP32 vs INT8 accuracy/size/speed table. Shows you understand the cost.</li>
+            <li><strong>Adversarial robustness</strong> — accuracy vs ε curve. Shows honest evaluation of system limits.</li>
+            <li><strong>Limitations</strong> — 3 honest bullets. Never skip this — committees trust students who know their limits.</li>
+            <li><strong>Future work</strong> — federated learning, ViT backbone, cloud-hybrid. 3 bullets, 30 seconds.</li>
+            <li><strong>Conclusion</strong> — restate the 3 contributions + your key numbers. No new information.</li>
+            <li><strong>Thank you + GitHub QR code</strong> — paper submission status. Ready for questions.</li>
+          </ol>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">⚠ Hard committee questions — prepared answers</p>
+          <div class="qa">
+            <p class="qa-q">Why FPGA instead of a Raspberry Pi 5 or Jetson Nano at the edge?</p>
+            <p class="qa-a">Pi 5 (ARM Cortex-A76) has no hardware accelerator for CNN inference — it runs the same ARM code as our CPU baseline. Jetson Nano has a GPU but costs 3× more and draws 5–10W vs our Pynq-Z2's ~2W under DPU load. FPGA inference is also deterministic — no OS scheduling jitter — which matters for security SLAs with hard latency requirements.</p>
+          </div>
+          <div class="qa">
+            <p class="qa-q">Why computer vision on network data? Traditional feature-based ML works well on NSL-KDD.</p>
+            <p class="qa-a">Feature-based approaches require domain expert feature selection and are brittle to adversarial feature manipulation — an attacker who knows your feature set can craft traffic that evades detection. Visual representation is obfuscation-resistant because structural byte patterns at the memory level are much harder to randomize without breaking the malware's functionality. The MalImg benchmark confirms CNN accuracy is competitive with feature-based approaches while generalizing better to novel families.</p>
+          </div>
+          <div class="qa">
+            <p class="qa-q">Your F1 on NSL-KDD is lower than the published Random Forest baseline. How do you justify this?</p>
+            <p class="qa-a">The RF baseline is optimized purely for accuracy on a static dataset with hand-engineered features and no deployment constraints. Our system accepts raw input without feature engineering and runs in [X]ms on an FPGA edge device with no cloud dependency. The accuracy difference is the direct cost of the deployment constraints we're solving — constraints the RF baseline ignores entirely. Our baseline comparison table makes this tradeoff explicit.</p>
+          </div>
+          <div class="qa">
+            <p class="qa-q">What happens when attackers learn about your detection system and craft evasion attacks?</p>
+            <p class="qa-a">This is exactly what the adversarial robustness section addresses. At ε=0.05, our F1 drops by [N]%. Adversarial training reduces this drop to [M]%. We document this honestly as a current limitation. Full adversarial robustness — including on-device FPGA adversarial retraining — is explicitly noted as future work. A system that acknowledges its failure modes is more trustworthy than one that hides them.</p>
+          </div>
+          <div class="res" style="margin-top:12px">
+            <p class="res-title">Defense prep resources</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.youtube.com/watch?v=eIho2S0ZahI" target="_blank">How to give a great research talk (YT)</a>
+              <a class="rl" href="https://www.youtube.com/watch?v=17CP8PLlhQs" target="_blank">PhD defense tips (YT)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note note-coral">
+        <p class="note-lbl">⚠ Mock defense — non-negotiable</p>
+        <p>Record yourself presenting all 20 slides once. Watch it back — you will catch: slides you spend too long on, transitions that are unclear, questions you can't answer fluently. Then do one live run-through with a peer who will <strong>actually interrupt you mid-slide</strong>. Dr. Guerroumi interrupted a student mid-answer. <strong>If you've never been interrupted before your defense, the first time it happens in the defense room will throw you.</strong> Rehearse being interrupted.</p>
+      </div>
+    </div>
+
+    <!-- June -->
+    <div class="mblock">
+      <div class="mhdr">
+        <span class="mlabel" style="color:var(--pink-text)">June 2027 — Defense</span>
+        <span class="mpill p7-pill">Final polish + submission + defense day</span>
+      </div>
+      <div class="dgrid">
+        <div class="dcol">
+          <p class="dcol-title">📋 Final checklist — week by week</p>
+          <ul class="dl">
+            <li><strong>Week 1</strong> — incorporate all supervisor feedback from May. Final LaTeX pass: figure captions complete, table formatting correct, all citations resolve, page numbers right, ToC accurate, list of figures complete.</li>
+            <li><strong>Week 2</strong> — print thesis on paper, read end to end (you catch errors you miss on screen). Make final corrections. Supervisor sign-off meeting — get written or email confirmation that the thesis is approved for submission.</li>
+            <li><strong>Week 3</strong> — official thesis submission to department. Clean repo demo dry-run: <code>git clone</code> your own repo to a fresh Colab notebook, run <code>pip install -r requirements.txt</code>, run the FastAPI server, confirm everything works from a clean state. Set GitHub repo to public.</li>
+            <li><strong>Week 4 — Defense day</strong> — arrive 30 minutes early. Load slides. Run the demo once in the room to confirm projector/setup. Breathe. The committee has read your thesis — they know you did the work. The defense is about whether you <em>understand</em> it.</li>
+          </ul>
+        </div>
+        <div class="dcol">
+          <p class="dcol-title">🎯 Your 3 contributions — defense day statement</p>
+          <ul class="dl">
+            <li><em>Contribution 1 —</em> <strong>CV-based threat detection pipeline</strong> that classifies network intrusions (NSL-KDD) and malware families (MalImg) using binary visualization and deep learning, without manual feature engineering. Outperforms rule-based baselines on novel threat generalization.</li>
+            <li><em>Contribution 2 —</em> <strong>GPU-to-FPGA deployment methodology</strong> that enables models trained on cloud GPU to be quantized to INT8 and deployed on a Pynq-Z2 FPGA for edge inference with no cloud dependency and deterministic latency.</li>
+            <li><em>Contribution 3 —</em> <strong>Three-platform latency benchmark</strong> (CPU vs GPU vs FPGA) with statistical analysis (mean ± std, 5 runs), demonstrating real-time threat detection is viable at the network edge with [X]ms inference and [Y]% F1 retained after quantization.</li>
+          </ul>
+          <div class="res" style="margin-top:12px">
+            <p class="res-title">What comes after</p>
+            <div class="res-grid">
+              <a class="rl" href="https://www.linkedin.com" target="_blank">LinkedIn — update with thesis + GitHub</a>
+              <a class="rl" href="https://github.com" target="_blank">GitHub — set repo public on defense day</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ms ms-k">
+        <div class="ms-icon">◎</div>
+        <div>
+          <p class="ms-lbl">Final milestone — June 2027</p>
+          <p class="ms-txt">Thesis defended. Paper submitted or under review. Public GitHub repo with complete pipeline, clean README, reproducible benchmark. Three concrete contributions demonstrated live with a FastAPI endpoint. Portfolio: thesis document + paper + GitHub = your PhD application or industry job application package.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Thesis writing tracker -->
+<div class="tracker">
+  <div class="tracker-hdr">Thesis writing timeline — first drafts → final submission</div>
+  <div class="tracker-row"><div class="tracker-ch">Chapter 1 — Introduction & problem statement</div><div class="tracker-bw"><div class="tracker-bf" style="width:100%;background:var(--pink)"></div></div><div class="tracker-when">Dec 2026</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Chapter 2 — Related work & literature review</div><div class="tracker-bw"><div class="tracker-bf" style="width:100%;background:var(--pink)"></div></div><div class="tracker-when">Jan 2027</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Chapter 3 — Methodology & system design</div><div class="tracker-bw"><div class="tracker-bf" style="width:100%;background:var(--coral)"></div></div><div class="tracker-when">Feb 2027</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Chapter 4 — Experiments & results</div><div class="tracker-bw"><div class="tracker-bf" style="width:100%;background:var(--coral)"></div></div><div class="tracker-when">Mar 2027</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Chapter 5 — Conclusion & future work</div><div class="tracker-bw"><div class="tracker-bf" style="width:75%;background:var(--purple)"></div></div><div class="tracker-when">Apr 2027</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Abstract + acknowledgements + final formatting</div><div class="tracker-bw"><div class="tracker-bf" style="width:50%;background:var(--green)"></div></div><div class="tracker-when">Apr–May 2027</div></div>
+  <div class="tracker-row"><div class="tracker-ch">Supervisor sign-off + official submission</div><div class="tracker-bw"><div class="tracker-bf" style="width:20%;background:var(--text3)"></div></div><div class="tracker-when">May–Jun 2027</div></div>
+</div>
+
+<!-- Defense checklist -->
+<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:1.5rem;">
+  <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:12px;">What you bring to the defense table</p>
+  <div class="dc-grid">
+    <div class="dc-item"><div class="dc-lbl">Datasets</div><div class="dc-val">NSL-KDD + MalImg</div></div>
+    <div class="dc-item"><div class="dc-lbl">Hardware tested on</div><div class="dc-val">Colab A100 + Pynq-Z2</div></div>
+    <div class="dc-item"><div class="dc-lbl">Key result</div><div class="dc-val">3-way latency benchmark</div></div>
+    <div class="dc-item"><div class="dc-lbl">Deployment interface</div><div class="dc-val">FastAPI live demo</div></div>
+    <div class="dc-item"><div class="dc-lbl">Code</div><div class="dc-val">Public GitHub repo</div></div>
+    <div class="dc-item"><div class="dc-lbl">Paper</div><div class="dc-val">Submitted / under review</div></div>
+    <div class="dc-item"><div class="dc-lbl">Baseline comparison</div><div class="dc-val">Snort + 2 ML systems</div></div>
+    <div class="dc-item"><div class="dc-lbl">Robustness test</div><div class="dc-val">FGSM adversarial curve</div></div>
+  </div>
+</div>
+
+</div>
+<script>
+function tog(id) {
+  const b = document.getElementById(id+'-b');
+  const c = document.getElementById(id+'-c');
+  const open = b.classList.contains('open');
+  b.classList.toggle('open', !open);
+  c.textContent = open ? '▾' : '▴';
+}
+function openP(id) {
+  const b = document.getElementById(id+'-b');
+  const c = document.getElementById(id+'-c');
+  b.classList.add('open');
+  c.textContent = '▴';
+  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const s = d.scrollTop || document.body.scrollTop;
+  const h = d.scrollHeight - d.clientHeight;
+  document.getElementById('prog').style.width = (s/h*100)+'%';
+});
+</script>
+</body>
+</html>
