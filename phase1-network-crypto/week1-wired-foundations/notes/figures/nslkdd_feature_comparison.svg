@@ -1,0 +1,222 @@
+<svg viewBox="0 0 720 1080" xmlns="http://www.w3.org/2000/svg" role="img"
+     font-family="'JetBrains Mono','Fira Code','Courier New',monospace">
+<title>NSL-KDD feature fingerprints — traffic class comparison</title>
+<desc>Complete comparison of Normal HTTP, DoS SYN flood, Port scan, and SSH brute force across six NSL-KDD features. Includes radar chart, feature description cards, raw value table, and thesis connection note.</desc>
+
+<!-- HEADER -->
+<text x="36" y="34" font-size="10" fill="#484f64" letter-spacing="1.8">NSL-KDD · FEATURE ANALYSIS · WEEK 1</text>
+<text x="36" y="58" font-size="18" font-weight="600" fill="#e6eaf2" letter-spacing="-0.5">Traffic fingerprints</text>
+<text x="36" y="78" font-size="13" fill="#8b91a8">6 features · 4 traffic classes · how the model sees attack patterns</text>
+<line x1="36" y1="90" x2="684" y2="90" stroke="rgba(255,255,255,0.08)" stroke-width="0.75"/>
+
+<!-- LEGEND -->
+<g transform="translate(36,104)">
+  <rect width="9" height="9" rx="2" fill="#2a78d6"/>
+  <text x="14" y="9" font-size="11" fill="#8b91a8">Normal HTTP</text>
+  <rect x="116" width="9" height="9" rx="2" fill="#e34948"/>
+  <text x="130" y="9" font-size="11" fill="#8b91a8">DoS SYN flood</text>
+  <rect x="252" width="9" height="9" rx="2" fill="#eda100"/>
+  <text x="266" y="9" font-size="11" fill="#8b91a8">Port scan</text>
+  <rect x="356" width="9" height="9" rx="2" fill="#7c6fe0"/>
+  <text x="370" y="9" font-size="11" fill="#8b91a8">SSH brute force</text>
+</g>
+
+<!-- RADAR CHART (centre 360,310) -->
+<g transform="translate(360,310)">
+  <!-- Grid rings -->
+  <g stroke="rgba(255,255,255,0.07)" stroke-width="0.75" fill="none">
+    <polygon points="0,-31.7 27.5,-15.8 27.5,15.8 0,31.7 -27.5,15.8 -27.5,-15.9"/>
+    <polygon points="0,-63.3 54.8,-31.6 54.8,31.6 0,63.3 -54.8,31.6 -54.8,-31.7"/>
+    <polygon points="0,-95 82.3,-47.5 82.3,47.5 0,95 -82.3,47.5 -82.3,-47.5"/>
+    <polygon points="0,-126.7 109.7,-63.3 109.7,63.3 0,126.7 -109.7,63.3 -109.7,-63.4"/>
+    <polygon points="0,-158.3 137.1,-79.1 137.1,79.1 0,158.3 -137.1,79.1 -137.1,-79.2"/>
+    <polygon points="0,-190 164.5,-95 164.5,95 0,190 -164.5,95 -164.5,-95"/>
+  </g>
+  <!-- Axis spokes -->
+  <g stroke="rgba(255,255,255,0.09)" stroke-width="0.75">
+    <line x1="0" y1="0" x2="0"      y2="-190"/>
+    <line x1="0" y1="0" x2="164.5"  y2="-95"/>
+    <line x1="0" y1="0" x2="164.5"  y2="95"/>
+    <line x1="0" y1="0" x2="0"      y2="190"/>
+    <line x1="0" y1="0" x2="-164.5" y2="95"/>
+    <line x1="0" y1="0" x2="-164.5" y2="-95"/>
+  </g>
+  <!-- Scale ticks -->
+  <text x="5" y="-29"  font-size="9" fill="#484f64">1</text>
+  <text x="5" y="-61"  font-size="9" fill="#484f64">2</text>
+  <text x="5" y="-92"  font-size="9" fill="#484f64">3</text>
+  <text x="5" y="-124" font-size="9" fill="#484f64">4</text>
+  <text x="5" y="-155" font-size="9" fill="#484f64">5</text>
+  <text x="5" y="-186" font-size="9" fill="#484f64">6</text>
+  <!-- Axis labels -->
+  <text x="0"    y="-207" text-anchor="middle" font-size="11.5" fill="#9ba3bc">duration</text>
+  <text x="192"  y="-104" text-anchor="start"  font-size="11.5" fill="#9ba3bc">src_bytes</text>
+  <text x="192"  y="-91"  text-anchor="start"  font-size="10"   fill="#484f64">(÷100)</text>
+  <text x="192"  y="104"  text-anchor="start"  font-size="11.5" fill="#9ba3bc">logged_in</text>
+  <text x="0"    y="214"  text-anchor="middle" font-size="11.5" fill="#9ba3bc">serror_rate</text>
+  <text x="-192" y="104"  text-anchor="end"    font-size="11.5" fill="#9ba3bc">dst_host_count</text>
+  <text x="-192" y="117"  text-anchor="end"    font-size="10"   fill="#484f64">(÷100)</text>
+  <text x="-192" y="-104" text-anchor="end"    font-size="11.5" fill="#9ba3bc">protocol_type</text>
+
+  <!-- SSH brute force -->
+  <polygon points="0,-158.3 41.1,-23.7 0,0 0,0 -0.8,0.5 -27.4,-15.8"
+    fill="rgba(124,111,224,0.10)" stroke="#7c6fe0" stroke-width="1.75"
+    stroke-dasharray="7,3" stroke-linejoin="round"/>
+  <circle cx="0"     cy="-158.3" r="4.5" fill="#7c6fe0"/>
+  <circle cx="41.1"  cy="-23.7"  r="4.5" fill="#7c6fe0"/>
+  <circle cx="-27.4" cy="-15.8"  r="4.5" fill="#7c6fe0"/>
+  <circle cx="-0.8"  cy="0.5"    r="3"   fill="#7c6fe0" opacity="0.4"/>
+  <!-- Port scan -->
+  <polygon points="0,0 2.2,-1.3 0,0 0,0 -140.1,80.9 -27.4,-15.8"
+    fill="rgba(237,161,0,0.09)" stroke="#eda100" stroke-width="1.75"
+    stroke-dasharray="2,3" stroke-linejoin="round"/>
+  <circle cx="-140.1" cy="80.9"  r="4.5" fill="#eda100"/>
+  <circle cx="-27.4"  cy="-15.8" r="4.5" fill="#eda100"/>
+  <circle cx="2.2"    cy="-1.3"  r="3"   fill="#eda100" opacity="0.5"/>
+  <!-- DoS SYN flood -->
+  <polygon points="0,0 0,0 0,0 0,31.7 -140.1,80.9 -27.4,-15.8"
+    fill="rgba(227,73,72,0.10)" stroke="#e34948" stroke-width="1.75"
+    stroke-dasharray="5,3" stroke-linejoin="round"/>
+  <circle cx="0"      cy="31.7"  r="4.5" fill="#e34948"/>
+  <circle cx="-140.1" cy="80.9"  r="4.5" fill="#e34948"/>
+  <circle cx="-27.4"  cy="-15.8" r="4.5" fill="#e34948"/>
+  <!-- Normal HTTP -->
+  <polygon points="0,0 64.2,-37 27.4,15.8 0,0 -3.3,1.9 -27.4,-15.8"
+    fill="rgba(42,120,214,0.13)" stroke="#2a78d6" stroke-width="2"
+    stroke-linejoin="round"/>
+  <circle cx="64.2"  cy="-37"   r="4.5" fill="#2a78d6"/>
+  <circle cx="27.4"  cy="15.8"  r="4.5" fill="#2a78d6"/>
+  <circle cx="-27.4" cy="-15.8" r="4.5" fill="#2a78d6"/>
+  <circle cx="-3.3"  cy="1.9"   r="3"   fill="#2a78d6" opacity="0.5"/>
+</g>
+
+<!-- FEATURE CARDS -->
+<line x1="36" y1="524" x2="684" y2="524" stroke="rgba(255,255,255,0.08)" stroke-width="0.75"/>
+<text x="36" y="543" font-size="10" fill="#484f64" letter-spacing="1.5">FEATURE REFERENCE</text>
+
+<rect x="36"  y="554" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="48"  y="571" font-size="10"   fill="#484f64" letter-spacing="0.5">duration</text>
+<text x="48"  y="585" font-size="11.5" fill="#8b91a8">Connection lifetime in seconds.</text>
+<text x="48"  y="600" font-size="11.5" fill="#8b91a8">SSH brute force lingers; DoS/scan</text>
+<text x="48"  y="614" font-size="11.5" fill="#8b91a8">connections never complete.</text>
+
+<rect x="252" y="554" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="264" y="571" font-size="10"   fill="#484f64" letter-spacing="0.5">src_bytes</text>
+<text x="264" y="585" font-size="11.5" fill="#8b91a8">Bytes sent from source. Zero =</text>
+<text x="264" y="600" font-size="11.5" fill="#8b91a8">SYN only, TCP handshake never</text>
+<text x="264" y="614" font-size="11.5" fill="#8b91a8">finished, no data exchanged.</text>
+
+<rect x="468" y="554" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="480" y="571" font-size="10"   fill="#484f64" letter-spacing="0.5">logged_in</text>
+<text x="480" y="585" font-size="11.5" fill="#8b91a8">Auth succeeded (1=yes, 0=no).</text>
+<text x="480" y="600" font-size="11.5" fill="#8b91a8">Only normal HTTP authenticates</text>
+<text x="480" y="614" font-size="11.5" fill="#8b91a8">— all attack classes stay at 0.</text>
+
+<rect x="36"  y="630" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="48"  y="647" font-size="10"   fill="#484f64" letter-spacing="0.5">serror_rate</text>
+<text x="48"  y="661" font-size="11.5" fill="#8b91a8">Fraction of connections failing</text>
+<text x="48"  y="676" font-size="11.5" fill="#8b91a8">at SYN stage. 1.0 = 100% SYN</text>
+<text x="48"  y="690" font-size="11.5" fill="#8b91a8">errors = active SYN flood.</text>
+
+<rect x="252" y="630" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="264" y="647" font-size="10"   fill="#484f64" letter-spacing="0.5">dst_host_count</text>
+<text x="264" y="661" font-size="11.5" fill="#8b91a8">Recent connections to this host.</text>
+<text x="264" y="676" font-size="11.5" fill="#8b91a8">511 = counter saturated = host</text>
+<text x="264" y="690" font-size="11.5" fill="#8b91a8">under sustained attack.</text>
+
+<rect x="468" y="630" width="204" height="66" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<text x="480" y="647" font-size="10"   fill="#484f64" letter-spacing="0.5">protocol_type</text>
+<text x="480" y="661" font-size="11.5" fill="#8b91a8">Label-encoded integer. 0=ICMP,</text>
+<text x="480" y="676" font-size="11.5" fill="#8b91a8">1=TCP, 2=UDP. All four classes</text>
+<text x="480" y="690" font-size="11.5" fill="#8b91a8">here use TCP (value = 1).</text>
+
+<!-- RAW VALUE TABLE -->
+<line x1="36" y1="712" x2="684" y2="712" stroke="rgba(255,255,255,0.08)" stroke-width="0.75"/>
+<text x="36" y="731" font-size="10" fill="#484f64" letter-spacing="1.5">RAW FEATURE VALUES — WHAT THE MODEL ACTUALLY SEES</text>
+
+<rect x="36" y="740" width="648" height="212" rx="6" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.75"/>
+<rect x="36" y="740" width="648" height="27" rx="6" fill="rgba(255,255,255,0.04)"/>
+<rect x="36" y="754" width="648" height="13" fill="rgba(255,255,255,0.04)"/>
+
+<!-- Column headers -->
+<text x="52"  y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">TRAFFIC CLASS</text>
+<text x="226" y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">DURATION</text>
+<text x="302" y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">SRC_BYTES</text>
+<text x="388" y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">LOGGED_IN</text>
+<text x="472" y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">SERROR</text>
+<text x="550" y="758" font-size="9.5" fill="#484f64" letter-spacing="0.8">DST_HOST</text>
+
+<line x1="36" y1="768" x2="684" y2="768" stroke="rgba(255,255,255,0.08)" stroke-width="0.75"/>
+<!-- Vertical dividers -->
+<line x1="218" y1="740" x2="218" y2="952" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+<line x1="294" y1="740" x2="294" y2="952" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+<line x1="378" y1="740" x2="378" y2="952" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+<line x1="462" y1="740" x2="462" y2="952" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+<line x1="540" y1="740" x2="540" y2="952" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+<!-- Row 1: Normal HTTP -->
+<rect x="37" y="770" width="7" height="34" rx="1" fill="#2a78d6"/>
+<text x="51" y="784" font-size="12" fill="#e6eaf2">Normal HTTP</text>
+<text x="51" y="797" font-size="10" fill="#484f64">authenticated session</text>
+<text x="226" y="790" font-size="13" fill="#1d9e75" font-weight="600">0</text>
+<text x="302" y="790" font-size="13" fill="#1d9e75" font-weight="600">234</text>
+<text x="388" y="790" font-size="13" fill="#1d9e75" font-weight="600">1</text>
+<text x="472" y="790" font-size="13" fill="#1d9e75" font-weight="600">0.0</text>
+<text x="550" y="790" font-size="13" fill="#1d9e75" font-weight="600">12</text>
+<line x1="36" y1="806" x2="684" y2="806" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+<!-- Row 2: DoS SYN flood -->
+<rect x="37" y="808" width="7" height="34" rx="1" fill="#e34948"/>
+<text x="51" y="822" font-size="12" fill="#e6eaf2">DoS SYN flood</text>
+<text x="51" y="835" font-size="10" fill="#484f64">network saturation attack</text>
+<text x="226" y="828" font-size="13" fill="#484f64">0</text>
+<text x="302" y="828" font-size="13" fill="#e34948" font-weight="600">0</text>
+<text x="388" y="828" font-size="13" fill="#e34948" font-weight="600">0</text>
+<text x="472" y="828" font-size="13" fill="#e34948" font-weight="600">1.0</text>
+<text x="550" y="828" font-size="13" fill="#e34948" font-weight="600">511</text>
+<line x1="36" y1="844" x2="684" y2="844" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+<!-- Row 3: Port scan -->
+<rect x="37" y="846" width="7" height="34" rx="1" fill="#eda100"/>
+<text x="51" y="860" font-size="12" fill="#e6eaf2">Port scan</text>
+<text x="51" y="873" font-size="10" fill="#484f64">reconnaissance probe</text>
+<text x="226" y="866" font-size="13" fill="#484f64">0</text>
+<text x="302" y="866" font-size="13" fill="#eda100" font-weight="600">8</text>
+<text x="388" y="866" font-size="13" fill="#e34948" font-weight="600">0</text>
+<text x="472" y="866" font-size="13" fill="#1d9e75">0.0</text>
+<text x="550" y="866" font-size="13" fill="#e34948" font-weight="600">511</text>
+<line x1="36" y1="882" x2="684" y2="882" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+<!-- Row 4: SSH brute force -->
+<rect x="37" y="884" width="7" height="34" rx="1" fill="#7c6fe0"/>
+<text x="51" y="898" font-size="12" fill="#e6eaf2">SSH brute force</text>
+<text x="51" y="911" font-size="10" fill="#484f64">credential stuffing attack</text>
+<text x="226" y="904" font-size="13" fill="#eda100" font-weight="600">5</text>
+<text x="302" y="904" font-size="13" fill="#eda100" font-weight="600">150</text>
+<text x="388" y="904" font-size="13" fill="#e34948" font-weight="600">0</text>
+<text x="472" y="904" font-size="13" fill="#1d9e75">0.0</text>
+<text x="550" y="904" font-size="13" fill="#1d9e75">3</text>
+<line x1="36" y1="920" x2="684" y2="920" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+
+<!-- Colour key row -->
+<rect x="36" y="920" width="648" height="32" rx="0" fill="rgba(255,255,255,0.025)"/>
+<rect x="36" y="940" width="648" height="12" rx="0 0 6 6" fill="rgba(255,255,255,0.025)"/>
+<text x="51" y="940" font-size="9.5" fill="#484f64" letter-spacing="0.5">VALUE KEY</text>
+<rect x="116" y="932" width="7" height="7" rx="1" fill="#1d9e75"/>
+<text x="127" y="940" font-size="9.5" fill="#484f64">normal</text>
+<rect x="178" y="932" width="7" height="7" rx="1" fill="#e34948"/>
+<text x="189" y="940" font-size="9.5" fill="#484f64">anomalous / threat indicator</text>
+<rect x="370" y="932" width="7" height="7" rx="1" fill="#eda100"/>
+<text x="381" y="940" font-size="9.5" fill="#484f64">elevated / suspicious</text>
+<rect x="524" y="932" width="7" height="7" rx="1" fill="#484f64"/>
+<text x="535" y="940" font-size="9.5" fill="#484f64">neutral</text>
+
+<!-- THESIS INSIGHT -->
+<line x1="36" y1="962" x2="684" y2="962" stroke="rgba(255,255,255,0.08)" stroke-width="0.75"/>
+<rect x="36" y="972" width="3" height="68" rx="1" fill="#2a78d6"/>
+<text x="48" y="985"  font-size="9.5" fill="#7bb8f0" letter-spacing="1.5">THESIS CONNECTION</text>
+<text x="48" y="1001" font-size="11.5" fill="#8b91a8">DoS and port scan share dst_host_count = 511 — the only separator is serror_rate. Your Week 6 classifier</text>
+<text x="48" y="1017" font-size="11.5" fill="#8b91a8">will confuse these two classes most. SSH brute force is hardest: real bytes sent, no SYN errors, low</text>
+<text x="48" y="1033" font-size="11.5" fill="#8b91a8">dst_host_count — it looks close to normal traffic. Both observations appear in the confusion matrix.</text>
+
+</svg>

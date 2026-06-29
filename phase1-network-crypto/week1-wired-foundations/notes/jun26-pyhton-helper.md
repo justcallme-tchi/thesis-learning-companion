@@ -1,4 +1,7 @@
-# I - NumPy Arrays: The Foundational Blocks
+# NumPy for Cybersecurity & Thesis Work
+**Studied:** June 26, 2026 · Side-thread (30 min/day)
+---
+# I — Arrays: the foundational block
 
 In cybersecurity, a 1D array is often used to represent the extracted attributes or metrics of a **single network packet** or a **single log event**.
 
@@ -63,7 +66,6 @@ np.array([0, 1, 234, 1, 0.0, 12])
 So the full array says: **a sub-second TCP connection, 234 bytes sent, user was logged in, no SYN errors, destination contacted 12 times recently.** That's a normal authenticated HTTP session.
 
 ---
-
 ## Now watch what a DoS attack looks like
 
 ```python
@@ -81,6 +83,24 @@ np.array([0, 1, 0, 0, 1.0, 511])
 | `[5]` | `dst_host_count` | `511` | **511 recent connections to this host** — the attack is hammering it |
 
 Two arrays, same structure. The values tell completely different stories.
+
+---
+#### Look at what that table is already telling you — four attack patterns, readable from six numbers:
+
+<img src="./figures/nslkdd_feature_comparison.svg" alt="nslkdd feature comparison" width="1000" height="auto" /> 
+
+The radar chart shows you the "fingerprint" shape of each traffic type across six features simultaneously. This is exactly what your CNN will learn — not individual feature values, but the pattern across all features at once.
+
+Three things that chart makes immediately obvious:
+
+* **DoS and port scan are almost identical** except for `serror_rate`. Both hammer `dst_host_count` to 511. The only thing separating them is whether SYN handshakes fail (DoS = yes, scan = no). That single feature is the classifier's discriminating signal between two otherwise similar attack vectors. This is why class confusion between DoS and Probe in NSL-KDD is so common — and why you'll see it in your Week 4 confusion matrix.
+
+* **SSH brute force is the hardest to detect** from this feature set. Its shape barely differs from normal traffic except for `duration` (connections stay open longer during repeated login attempts) and `logged_in` staying 0. It doesn't flood `dst_host_count`, doesn't generate SYN errors, sends real bytes. This is why sophisticated attacks like brute force have low detection rates in simple rule-based systems — the feature signal is weak.
+
+* **Normal HTTP has the smallest area** on the radar. Low on everything. This is what "normal baseline" looks like — a tight, minimal signature. Anything that pushes significantly outside that shape is anomalous. Your anomaly detector in Phase 3 (IsolationForest, then autoencoder) will essentially learn to draw that normal boundary and flag anything outside it.
+
+
+One more thing to lock in before tomorrow: the original array `np.array([0, 1, 234, 0, 0.5, 12])` had `0.5` at index 4. In a real NSL-KDD array that would be `serror_rate = 0.5` — half of all recent connections to that destination failed at SYN. That's a suspicious value, not quite a full flood but well above zero. A classifier would likely flag that row as a probable DoS probe. The teaching example was accidentally already meaningful.
 
 ---
 
