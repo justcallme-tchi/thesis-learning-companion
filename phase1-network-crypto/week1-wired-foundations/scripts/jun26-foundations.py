@@ -42,6 +42,10 @@ data[mask]       # array([[0, 1, 234, 0]])
 labels = np.array(['normal', 'dos', 'normal', 'probe'])
 dos_rows = data[labels == 'dos']
 
+""" Real NSL-KDD usage you'll write in Week 4:
+X_dos   = X[labels == 'dos']
+X_probe = X[labels == 'probe']
+X_normal = X[labels == 'normal']"""
 
 ### Broadcasting — operations without loops
 
@@ -51,9 +55,7 @@ col_min, col_max = col.min(), col.max()
 normalized = (col - col_min) / (col_max - col_min)
 # array([0.0, 0.457, 0.019, 0.009, 1.0])
 
-
 #Broadcasting rule: NumPy stretches the scalar across every element. This is how MinMaxScaler works internally on your NSL-KDD features.
-
 
 # Binary image normalization — exactly what your malware pipeline will do
 image_bytes = np.array([0, 128, 255, 64, 200], dtype=np.uint8)
