@@ -398,3 +398,29 @@ data.max(axis=0)    # max per feature  ← used in feature importance checks
 you actually need to open [numpy.org/doc/stable/user/quickstart.html](https://numpy.org/doc/stable/user/quickstart.html) and run the code blocks in a Colab notebook. Don't read passively, type every example, change one value, observe what changes. That's it.
 
 ---
+
+## NumPy resume 
+
+- **Array creation:** `np.array([...])` — shape, dtype. 1D = feature vector. 2D = (samples × features) matrix.
+- **Slicing:** `data[row, col]`, `data[:, 2]` = all rows column 2, `data[0:2, 0:3]` = submatrix.
+- **Boolean mask:** `data[labels == 'dos']` — filter rows by condition. Core pattern for NSL-KDD class filtering.
+- **Broadcasting:** operations on arrays apply element-wise without loops. `(col - col.min()) / (col.max() - col.min())` normalizes a full column in one line — this is what MinMaxScaler does internally.
+- **Reshape:** `bytes_array.reshape(-1, 256)` — turns a 1D byte stream into a 2D image matrix. This is the first operation in the MalImg preprocessing pipeline.
+- **Axis operations:** `data.mean(axis=0)` = mean per feature column. `data.mean(axis=1)` = mean per sample row.
+
+---
+
+## Self-check
+> Can you explain to someone: why does a router pick one path over another?
+
+A router picks a path using two rules in order. First, *longest prefix match* — the most specific destination entry wins (a /24 beats a /0 for any IP in that /24). Second, if two protocols both have a route to the same destination, *administrative distance* decides which one is trusted — lower AD wins (OSPF at 110 beats RIP at 120). Within a single protocol, the metric decides: RIP uses hop count, OSPF uses bandwidth-derived cost, BGP uses policy attributes set by the admin. The winning route goes into the forwarding table; everything else is discarded or held as backup.
+
+---
+
+## Thesis connection
+
+- **NSL-KDD `dst_host_count`:** counts how many distinct destination hosts a source has contacted. Normal traffic hits a small set of known servers (matching specific /24 or /32 prefixes). A scanning attack generates traffic to many IPs that would only match the default route (`0.0.0.0/0`) — no specific prefix exists for them. High `dst_host_count` with low `dst_host_srv_count` is the routing-layer signature of a probe attack.
+
+- **BGP hijacking as an attack class:** a malicious AS advertises a more-specific prefix (`/24` instead of `/16`) for an IP range it doesn't own, attracting traffic via longest prefix match. This is why BGP security (RPKI) matters — and why understanding routing is prerequisite knowledge for your threat model.
+
+- **Protocol anomaly features:** `service`, `protocol_type`, and `flag` in NSL-KDD encode what the connection looked like at layer 4. Understanding that RIP sends broadcasts every 30 seconds and OSPF sends LSAs only on topology change means you can recognise protocol-specific traffic patterns that appear as features — and explain why deviations from those patterns are anomalous.
