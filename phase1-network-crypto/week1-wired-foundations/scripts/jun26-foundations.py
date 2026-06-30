@@ -39,7 +39,7 @@ data[mask]       # array([[0, 1, 234, 0]])
 
 #The boolean mask is what you'll use to filter NSL-KDD by attack class:
 
-labels = np.array(['normal', 'dos', 'normal', 'probe'])
+labels = np.array(['normal', 'dos', 'normal'])   # 3 elements — must match data's 3 rows
 dos_rows = data[labels == 'dos']
 
 """ Real NSL-KDD usage you'll write in Week 4:
